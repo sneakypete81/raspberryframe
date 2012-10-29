@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import os
 import sys
+import time
 import pygame
+import openphotoframe
 
 DRIVERS = ['directfb', 'fbcon', 'svgalib']
 
@@ -12,19 +14,26 @@ def setup():
     found = False
     for driver in DRIVERS:
         os.putenv("SDL_VIDEODRIVER", driver)
+        print "Trying %s..." % driver
         try:
             pygame.display.init()
         except pygame.error:
             print "Driver: %s failed." % driver
         else:
             found = True
+            print "Driver %s successfully initialised" % driver
             break
 
     if not found:
         raise Exception('No suitable video driver found!')
-
+    
     pygame.mouse.set_visible(False)
-    return pygame.display.set_mode(get_display_size(), pygame.FULLSCREEN)
+    size = get_display_size()
+    print "Resolution: %dx%d" % size
+    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+    screen.fill(pygame.Color("BLACK"))
+    pygame.display.update()
+    return screen
 
 def letterbox(image):
     width, height = image.get_size()
@@ -48,11 +57,24 @@ def centre_offset(image):
     screen_width, screen_height = get_display_size()
     return ((screen_width / 2 - width / 2), (screen_height / 2 - height / 2))
 
-screen = setup()
+def show_image(screen, image_file):
+    image = pygame.image.load(image_file)
+    # image = pygame.image.load("/home/pi/Mt Cook.JPG")
+    image.convert()
+    image = letterbox(image)
+    screen.blit(image, centre_offset(image))
+    pygame.display.update()
 
-screen.fill(pygame.Color("BLACK"))
-image = letterbox(pygame.image.load("/home/pi/Mt Cook.JPG"))
-screen.blit(image, centre_offset(image))
-pygame.display.update()
-raw_input()
+############################################################
+
+def run():
+    screen = setup()
+    opp = openphotoframe.OpenPhotoFrame(*get_display_size())
+    while True:
+        show_image(screen, opp.random_image())
+        time.sleep(5)
+
+if __name__ == "__main__":
+    run()
+
 
