@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import argparse
 import pygame
 import openphotoframe
 
@@ -71,7 +72,7 @@ class RaspberryFrame:
 
 ############################################################
 
-def run(slide_seconds=5):
+def run(slide_seconds):
     frame = RaspberryFrame()
     opf = openphotoframe.OpenPhotoFrame(frame.width, frame.height)
     while True:
@@ -79,6 +80,11 @@ def run(slide_seconds=5):
         time.sleep(slide_seconds)
 
 if __name__ == "__main__":
-    run(5)
+    parser = argparse.ArgumentParser(description="Plays an OpenPhoto slideshow on a framebuffer.")
+    parser.add_argument("-t", "--slide_seconds", type=int, default=5, 
+                        help="Delay between slides, in seconds (default:5)")
+    options = parser.parse_args()
+
+    run(options.slide_seconds)
 
 
