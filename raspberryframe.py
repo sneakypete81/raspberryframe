@@ -7,74 +7,78 @@ import openphotoframe
 
 DRIVERS = ['directfb', 'fbcon', 'svgalib']
 
-def setup():
-    if os.getenv('DISPLAY'):
-        raise Exception("I'm running under X display = %s. Please run me from a bare console instead." % format(disp_no))
+class RaspberryFrame:
+    def __init__(self):
+        self.screen = self._setup()
+        self.width, self.height = self._get_display_size()
 
-    found = False
-    for driver in DRIVERS:
-        os.putenv("SDL_VIDEODRIVER", driver)
-        print "Trying %s..." % driver
-        try:
-            pygame.display.init()
-        except pygame.error:
-            print "Driver: %s failed." % driver
-        else:
-            found = True
-            print "Driver %s successfully initialised" % driver
-            break
+    def _setup(self):
+        if os.getenv('DISPLAY'):
+            raise Exception("I'm running under X. Please run me from a bare console instead.")
 
-    if not found:
-        raise Exception('No suitable video driver found!')
+        found = False
+        for driver in DRIVERS:
+            os.putenv("SDL_VIDEODRIVER", driver)
+            print "Trying %s..." % driver
+            try:
+                pygame.display.init()
+            except pygame.error:
+                print "Driver: %s failed." % driver
+            else:
+                print "Driver %s successfully loaded" % driver
+                found = True
+                break
+        if not found:
+            raise Exception('No suitable video driver found!')
     
-    pygame.mouse.set_visible(False)
-    size = get_display_size()
-    print "Resolution: %dx%d" % size
-    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-    screen.fill(pygame.Color("BLACK"))
-    pygame.display.update()
-    return screen
+        pygame.mouse.set_visible(False)
+        size = self._get_display_size()
+        print "Resolution: %dx%d" % size
+        screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+        screen.fill(pygame.Color("BLACK"))
+        pygame.display.update()
+        return screen
 
-def letterbox(image):
-    width, height = image.get_size()
-    screen_width, screen_height = get_display_size()
+    @staticmethod
+    def _get_display_size():
+        display_info = pygame.display.Info()
+        return display_info.current_w, display_info.current_h
 
-    # First try to scale to the screen width
-    scale_factor = 1.0 * width / screen_width
-    # If it's still too high, scale to the screen height
-    if int(height / scale_factor) > screen_height:
-        scale_factor = 1.0 * height / screen_height
+    def letterbox(self, image):
+        width, height = image.get_size()
 
-    return pygame.transform.scale(image, (int(width / scale_factor), 
-                                          int(height / scale_factor)))
+        # First try to scale to the screen width
+        scale_factor = 1.0 * width / self.width
+        # If it's still too high, scale to the screen height
+        if int(height / scale_factor) > self.height:
+            scale_factor = 1.0 * height / self.height
 
-def get_display_size():
-    display_info = pygame.display.Info()
-    return display_info.current_w, display_info.current_h
+        return pygame.transform.scale(image, (int(width / scale_factor), 
+                                              int(height / scale_factor)))
 
-def centre_offset(image):
-    width, height = image.get_size()
-    screen_width, screen_height = get_display_size()
-    return ((screen_width / 2 - width / 2), (screen_height / 2 - height / 2))
+    def centre_offset(self, image):
+        width, height = image.get_size()
+        return ((self.width / 2 - width / 2), (self.height / 2 - height / 2))
 
-def show_image(screen, image_file):
-    image = pygame.image.load(image_file)
-    # image = pygame.image.load("/home/pi/Mt Cook.JPG")
-    image.convert()
-    image = letterbox(image)
-    screen.blit(image, centre_offset(image))
-    pygame.display.update()
+    def show_image(self, image_file):
+        image = pygame.image.load(image_file)
+        # image = pygame.image.load("/home/pi/Mt Cook.JPG")
+        image.convert()
+        image = self.letterbox(image)
+        self.screen.fill(pygame.Color("BLACK"))
+        self.screen.blit(image, self.centre_offset(image))
+        pygame.display.update()
 
 ############################################################
 
-def run():
-    screen = setup()
-    opp = openphotoframe.OpenPhotoFrame(*get_display_size())
+def run(slide_seconds=5):
+    frame = RaspberryFrame()
+    opf = openphotoframe.OpenPhotoFrame(frame.width, frame.height)
     while True:
-        show_image(screen, opp.random_image())
-        time.sleep(5)
+        frame.show_image(opf.random_image())
+        time.sleep(slide_seconds)
 
 if __name__ == "__main__":
-    run()
+    run(5)
 
 

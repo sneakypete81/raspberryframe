@@ -22,12 +22,12 @@ class OpenPhotoFrame:
 
     def random_image(self):
         page = random.randint(1, self.num_photos)
-        print "Image %d" % page
+        print "Preparing image..."
         photo = self.openphoto.photos.list(pageSize=1, page=page, 
                                            returnSizes="%sx%s" % (self.width, self.height))[0]
-        print "(%s)" % photo.id
         # Update the number of photos, if necessary
         if photo.totalPages != self.num_photos:
             self._update_num_photos()
 
+        print "Loading image..."
         return self.get_image(photo)
