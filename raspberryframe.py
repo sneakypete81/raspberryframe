@@ -9,12 +9,13 @@ import openphotoframe
 DRIVERS = ['directfb', 'fbcon', 'svgalib']
 
 class RaspberryFrame:
-    def __init__(self, width=None, height=None):
+    def __init__(self, width=None, height=None, crop_threshold=10):
         self.screen = self._setup()
         if width and height:
             self.width, self.height = width, height
         else:
             self.width, self.height = self._get_display_size()
+        self.crop_threshold = crop_threshold
 
     def _setup(self):
         if os.getenv('DISPLAY'):
@@ -51,11 +52,21 @@ class RaspberryFrame:
     def letterbox(self, image):
         width, height = image.get_size()
 
-        # First try to scale to the screen width
-        scale_factor = 1.0 * width / self.width
-        # If it's still too high, scale to the screen height
-        if int(height / scale_factor) > self.height:
-            scale_factor = 1.0 * height / self.height
+        width_scale_factor = 1.0 * width / self.width
+        height_scale_factor = 1.0 * height / self.height
+
+        # Use the largest scale factor, to prevent cropping
+        scale_factor = max(width_scale_factor, height_scale_factor)
+
+        # If the difference in aspect ratios is less than aspect_error, 
+        # crop the image instead of letterboxing
+        aspect_error = abs((width_scale_factor - height_scale_factor) / 
+                           max(width_scale_factor, height_scale_factor))
+        if aspect_error <= self.crop_threshold / 100.0:
+            scale_factor = min(width_scale_factor, height_scale_factor)
+
+        new_width = int(width / scale_factor)
+        new_height = int(height / scale_factor)
 
         return pygame.transform.scale(image, (int(width / scale_factor), 
                                               int(height / scale_factor)))
@@ -75,8 +86,8 @@ class RaspberryFrame:
 
 ############################################################
 
-def run(slide_seconds, width=None, height=None):
-    frame = RaspberryFrame(width, height)
+def run(slide_seconds=5, width=None, height=None, crop_threshold=10):
+    frame = RaspberryFrame(width, height, crop_threshold)
     opf = openphotoframe.OpenPhotoFrame(frame.width, frame.height)
     while True:
         frame.show_image(opf.random_image())
@@ -88,6 +99,8 @@ if __name__ == "__main__":
                         help="Delay between slides in seconds (default:5)")
     parser.add_argument("-s", "--size", default=None, 
                         help="Target image size (default:screen resolution)")
+    parser.add_argument("-c", "--crop_threshold", type=int, default=10,
+                        help="Crop the image if the image/screen aspect ratios are within this percentage")
     options = parser.parse_args()
 
     try:
@@ -97,6 +110,7 @@ if __name__ == "__main__":
         parser.error("Please specify image size as 'widthxheight'\n(eg: -r 1920x1080)")
 
     run(slide_seconds=options.slide_seconds, 
-        width=width, height=height)
+        width=width, height=height,
+        crop_threshold=options.crop_threshold)
 
 
