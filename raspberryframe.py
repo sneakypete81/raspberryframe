@@ -9,9 +9,12 @@ import openphotoframe
 DRIVERS = ['directfb', 'fbcon', 'svgalib']
 
 class RaspberryFrame:
-    def __init__(self):
+    def __init__(self, width=None, height=None):
         self.screen = self._setup()
-        self.width, self.height = self._get_display_size()
+        if width and height:
+            self.width, self.height = width, height
+        else:
+            self.width, self.height = self._get_display_size()
 
     def _setup(self):
         if os.getenv('DISPLAY'):
@@ -68,23 +71,32 @@ class RaspberryFrame:
         image = self.letterbox(image)
         self.screen.fill(pygame.Color("BLACK"))
         self.screen.blit(image, self.centre_offset(image))
-        pygame.display.update()
+        pygame.display.update(pygame.Rect(0, 0, width, height))
 
 ############################################################
 
-def run(slide_seconds):
-    frame = RaspberryFrame()
+def run(slide_seconds, width=None, height=None):
+    frame = RaspberryFrame(width, height)
     opf = openphotoframe.OpenPhotoFrame(frame.width, frame.height)
     while True:
         frame.show_image(opf.random_image())
         time.sleep(slide_seconds)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Plays an OpenPhoto slideshow on a framebuffer.")
+    parser = argparse.ArgumentParser(description="Plays an OpenPhoto slideshow to a framebuffer.")
     parser.add_argument("-t", "--slide_seconds", type=int, default=5, 
-                        help="Delay between slides, in seconds (default:5)")
+                        help="Delay between slides in seconds (default:5)")
+    parser.add_argument("-s", "--size", default=None, 
+                        help="Target image size (default:screen resolution)")
     options = parser.parse_args()
 
-    run(options.slide_seconds)
+    try:
+        width, height = options.size.split("x")
+        width, height = int(width), int(height)
+    except ValueError:
+        parser.error("Please specify image size as 'widthxheight'\n(eg: -r 1920x1080)")
+
+    run(slide_seconds=options.slide_seconds, 
+        width=width, height=height)
 
 
