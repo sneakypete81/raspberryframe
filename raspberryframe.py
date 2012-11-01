@@ -77,7 +77,6 @@ class RaspberryFrame:
 
     def show_image(self, image_file):
         image = pygame.image.load(image_file)
-        # image = pygame.image.load("/home/pi/Mt Cook.JPG")
         image.convert()
         image = self.letterbox(image)
         self.screen.fill(pygame.Color("BLACK"))
@@ -103,11 +102,14 @@ if __name__ == "__main__":
                         help="Crop the image if the image/screen aspect ratios are within this percentage")
     options = parser.parse_args()
 
-    try:
-        width, height = options.size.split("x")
-        width, height = int(width), int(height)
-    except ValueError:
-        parser.error("Please specify image size as 'widthxheight'\n(eg: -r 1920x1080)")
+    width = None
+    height = None
+    if options.size:
+        try:
+            width, height = options.size.split("x")
+            width, height = int(width), int(height)
+        except ValueError:
+            parser.error("Please specify image size as 'widthxheight'\n(eg: -r 1920x1080)")
 
     run(slide_seconds=options.slide_seconds, 
         width=width, height=height,
