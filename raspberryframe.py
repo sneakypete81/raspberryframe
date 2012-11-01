@@ -6,6 +6,9 @@ import argparse
 import pygame
 import openphotoframe
 
+CACHE_PATH = os.path.expanduser("~/.raspberryframe_cache")
+CACHE_SIZE_MB = 1024 # Limit cache to 1GB
+
 DRIVERS = ['directfb', 'fbcon', 'svgalib']
 
 class RaspberryFrame:
@@ -87,7 +90,7 @@ class RaspberryFrame:
 
 def run(slide_seconds=5, width=None, height=None, crop_threshold=10):
     frame = RaspberryFrame(width, height, crop_threshold)
-    opf = openphotoframe.OpenPhotoFrame(frame.width, frame.height)
+    opf = openphotoframe.OpenPhotoFrame(frame.width, frame.height, CACHE_PATH, CACHE_SIZE_MB)
     while True:
         frame.show_image(opf.random_image())
         time.sleep(slide_seconds)
