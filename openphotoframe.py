@@ -37,6 +37,7 @@ class OpenPhotoFrame:
                 f.write(image.read())
 
         self.trim_cache()
+        image.seek(0)
         return image
 
     def trim_cache(self):
