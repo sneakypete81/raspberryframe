@@ -13,17 +13,31 @@ DRIVERS = ['directfb', 'fbcon', 'svgalib']
 
 class RaspberryFrame:
     def __init__(self, width=None, height=None, crop_threshold=10):
-        self.screen = self._setup()
+        self.screen = self._setup(width, height)
         if width and height:
             self.width, self.height = width, height
         else:
             self.width, self.height = self._get_display_size()
         self.crop_threshold = crop_threshold
 
-    def _setup(self):
+    def _setup(self, width, height):
         if os.getenv('DISPLAY'):
-            raise Exception("I'm running under X. Please run me from a bare console instead.")
+            pygame.display.init()
+            if width and height:
+                screen = pygame.display.set_mode((width, height))
+            else:
+                screen = pygame.display.set_mode()
+        else:
+            self._setup_framebuffer_driver()
+            screen = pygame.display.set_mode(self._get_display_size(), pygame.FULLSCREEN)            
 
+        screen.fill(pygame.Color("BLACK"))
+        pygame.mouse.set_visible(False)
+        pygame.display.update()
+        return screen
+
+    @staticmethod
+    def _setup_framebuffer_driver():
         found = False
         for driver in DRIVERS:
             os.putenv("SDL_VIDEODRIVER", driver)
@@ -39,13 +53,6 @@ class RaspberryFrame:
         if not found:
             raise Exception('No suitable video driver found!')
     
-        pygame.mouse.set_visible(False)
-        size = self._get_display_size()
-        print "Resolution: %dx%d" % size
-        screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-        screen.fill(pygame.Color("BLACK"))
-        pygame.display.update()
-        return screen
 
     @staticmethod
     def _get_display_size():
@@ -84,7 +91,7 @@ class RaspberryFrame:
         image = self.letterbox(image)
         self.screen.fill(pygame.Color("BLACK"))
         self.screen.blit(image, self.centre_offset(image))
-        pygame.display.update(pygame.Rect(0, 0, width, height))
+        pygame.display.update(pygame.Rect(0, 0, self.width, self.height))
 
 ############################################################
 
