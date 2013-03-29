@@ -29,15 +29,18 @@ class OpenPhotoFrame:
     def get_image_cached(self, photo):
         # TODO: Check hash, once there's an OpenPhoto API for this
         cache_file = os.path.join(self.cache_path, photo.id)
-        if not os.path.exists(cache_file):
+        if os.path.exists(cache_file):
+            print "Loading image from cache..."
+            image = cache_file
+        else:
             print "Downloading image..."
             # Save a copy of the image
             image = self.get_image(photo)
             with open(cache_file, "wb") as f:
                 f.write(image.read())
+            image.seek(0)
 
         self.trim_cache()
-        image.seek(0)
         return image
 
     def trim_cache(self):
