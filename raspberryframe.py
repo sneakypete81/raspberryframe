@@ -96,11 +96,12 @@ class RaspberryFrame:
 ############################################################
 
 class Main:
-    def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10):
+    def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10, swap_axes=False):
         self.frame = RaspberryFrame(width, height, crop_threshold)
         self.opf = openphotoframe.OpenPhotoFrame(self.frame.width, self.frame.height, CACHE_PATH, CACHE_SIZE_MB)
         self.clock = pygame.time.Clock()
         self.slide_seconds = slide_seconds
+        self.swap_axes = swap_axes
         self.timer = None
 
     def run(self):
@@ -118,6 +119,7 @@ class Main:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     sys.exit()
@@ -126,6 +128,13 @@ class Main:
                 if self.timer is not None:
                     gobject.source_remove(self.timer)
                 self.slideshow_next_cb()
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                pos = event.pos
+                if self.swap_axes:
+                    pos = (pos[1]*self.frame.width/self.frame.height,
+                           pos[0]*self.frame.height/self.frame.width)
+                print pos
         return True
 
 
@@ -135,6 +144,8 @@ if __name__ == "__main__":
                         help="Delay between slides in seconds (default:5)")
     parser.add_argument("-s", "--size", default=None,
                         help="Target image size (default:screen resolution)")
+    parser.add_argument("-x", "--swap_axes", action="store_true",
+                        help="Swap the x/y axes of the touchscreen")
     parser.add_argument("-c", "--crop_threshold", type=int, default=10,
                         help="Crop the image if the image/screen aspect ratios are within this percentage")
     options = parser.parse_args()
@@ -149,7 +160,8 @@ if __name__ == "__main__":
             parser.error("Please specify image size as 'widthxheight'\n(eg: -r 1920x1080)")
 
     Main(slide_seconds=options.slide_seconds,
-        width=width, height=height,
-        crop_threshold=options.crop_threshold).run()
+         width=width, height=height,
+         crop_threshold=options.crop_threshold,
+         swap_axes=options.swap_axes).run()
 
 
