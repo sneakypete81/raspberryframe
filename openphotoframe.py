@@ -1,9 +1,12 @@
 import os
 import urllib2
 import random
+import logging
 from cStringIO import StringIO
 import openphoto
 import keys
+
+logger = logging.getLogger("Raspberry Frame")
 
 class OpenPhotoFrame:
     def __init__(self, width, height, cache_path, cache_size_mb):
@@ -34,10 +37,10 @@ class OpenPhotoFrame:
         # TODO: Check hash, once there's an OpenPhoto API for this
         cache_file = os.path.join(self.cache_path, photo.id)
         if os.path.exists(cache_file):
-            print "Loading image from cache..."
+            logger.info("Loading image from cache...")
             image = cache_file
         else:
-            print "Downloading image..."
+            logger.info("Downloading image...")
             # Save a copy of the image
             image = self.get_image(photo)
             with open(cache_file, "wb") as f:
@@ -52,7 +55,7 @@ class OpenPhotoFrame:
         files = [os.path.join(self.cache_path, f) for f in os.listdir(self.cache_path)]
         cache_bytes = sum([os.path.getsize(f) for f in files])
         while cache_bytes > self.cache_size_mb * 1024 * 1024:
-            print "Trimming cache..."
+            logger.info("Trimming cache...")
             filepath = files.pop(0)
             cache_bytes = cache_bytes - os.path.getsize(filepath)
             os.remove(filepath)

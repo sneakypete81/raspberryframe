@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import argparse
+import logging
 import pygame
 import gobject
 import openphotoframe
@@ -11,6 +12,10 @@ CACHE_PATH = os.path.expanduser("~/.raspberryframe_cache")
 CACHE_SIZE_MB = 1024 # Limit cache to 1GB
 
 DRIVERS = ['directfb', 'fbcon', 'svgalib']
+
+logger = logging.getLogger("Raspberry Frame")
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 class RaspberryFrame:
     def __init__(self, width=None, height=None, crop_threshold=10):
@@ -23,6 +28,7 @@ class RaspberryFrame:
 
     def _setup(self, width, height):
         if os.getenv('DISPLAY'):
+            logger.info("X session found - using an X window for output")
             pygame.display.init()
             if width and height:
                 screen = pygame.display.set_mode((width, height))
@@ -42,13 +48,13 @@ class RaspberryFrame:
         found = False
         for driver in DRIVERS:
             os.putenv("SDL_VIDEODRIVER", driver)
-            print "Trying %s..." % driver
+            logger.debug("Trying to load %s..." % driver)
             try:
                 pygame.display.init()
             except pygame.error as error:
-                print "Driver: %s failed: %s" % (driver, str(error))
+                logger.debug("%s failed to load: %s" % (driver, str(error)))
             else:
-                print "Driver %s successfully loaded" % driver
+                logger.info("%s successfully loaded" % driver)
                 found = True
                 break
         if not found:
@@ -78,7 +84,7 @@ class RaspberryFrame:
         new_width = int(width / scale_factor)
         new_height = int(height / scale_factor)
 
-        return pygame.transform.scale(image, (int(width / scale_factor), 
+        return pygame.transform.scale(image, (int(width / scale_factor),
                                               int(height / scale_factor)))
 
     def centre_offset(self, image):
