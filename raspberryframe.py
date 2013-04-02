@@ -6,7 +6,7 @@ import argparse
 import logging
 import pygame
 import gobject
-import openphotoframe
+from providers import openphoto_provider
 
 CACHE_PATH = os.path.expanduser("~/.raspberryframe_cache")
 CACHE_SIZE_MB = 1024 # Limit cache to 1GB
@@ -65,8 +65,8 @@ class RaspberryFrame:
         display_info = pygame.display.Info()
         return display_info.current_w, display_info.current_h
 
-    def letterbox(self, image):
-        width, height = image.get_size()
+    def letterbox(self, photo):
+        width, height = photo.get_size()
 
         width_scale_factor = 1.0 * width / self.width
         height_scale_factor = 1.0 * height / self.height
@@ -75,7 +75,7 @@ class RaspberryFrame:
         scale_factor = max(width_scale_factor, height_scale_factor)
 
         # If the difference in aspect ratios is less than aspect_error,
-        # crop the image instead of letterboxing
+        # crop the photo instead of letterboxing
         aspect_error = abs((width_scale_factor - height_scale_factor) /
                            max(width_scale_factor, height_scale_factor))
         if aspect_error <= self.crop_threshold / 100.0:
@@ -84,19 +84,19 @@ class RaspberryFrame:
         new_width = int(width / scale_factor)
         new_height = int(height / scale_factor)
 
-        return pygame.transform.scale(image, (int(width / scale_factor),
+        return pygame.transform.scale(photo, (int(width / scale_factor),
                                               int(height / scale_factor)))
 
-    def centre_offset(self, image):
-        width, height = image.get_size()
+    def centre_offset(self, photo):
+        width, height = photo.get_size()
         return ((self.width / 2 - width / 2), (self.height / 2 - height / 2))
 
-    def show_image(self, image_file):
-        image = pygame.image.load(image_file)
-        image.convert()
-        image = self.letterbox(image)
+    def show_photo(self, photo_file):
+        photo = pygame.image.load(photo_file)
+        photo.convert()
+        photo = self.letterbox(photo)
         self.screen.fill(pygame.Color("BLACK"))
-        self.screen.blit(image, self.centre_offset(image))
+        self.screen.blit(photo, self.centre_offset(photo))
         pygame.display.update(pygame.Rect(0, 0, self.width, self.height))
 
 ############################################################
@@ -104,7 +104,7 @@ class RaspberryFrame:
 class Main:
     def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10, swap_axes=False):
         self.frame = RaspberryFrame(width, height, crop_threshold)
-        self.opf = openphotoframe.OpenPhotoFrame(self.frame.width, self.frame.height, CACHE_PATH, CACHE_SIZE_MB)
+        self.provider = openphoto_provider.OpenPhoto(self.frame.width, self.frame.height, CACHE_PATH, CACHE_SIZE_MB)
         self.clock = pygame.time.Clock()
         self.slide_seconds = slide_seconds
         self.swap_axes = swap_axes
@@ -116,7 +116,7 @@ class Main:
         gobject.MainLoop().run()
 
     def slideshow_next_cb(self):
-        self.frame.show_image(self.opf.random_image())
+        self.frame.show_photo(self.provider.random_photo())
         self.timer = gobject.timeout_add(self.slide_seconds*1000, self.slideshow_next_cb)
         return False
 
@@ -149,11 +149,11 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--slide_seconds", type=int, default=5,
                         help="Delay between slides in seconds (default:5)")
     parser.add_argument("-s", "--size", default=None,
-                        help="Target image size (default:screen resolution)")
+                        help="Target photo size (default:screen resolution)")
     parser.add_argument("-x", "--swap_axes", action="store_true",
                         help="Swap the x/y axes of the touchscreen")
     parser.add_argument("-c", "--crop_threshold", type=int, default=10,
-                        help="Crop the image if the image/screen aspect ratios are within this percentage")
+                        help="Crop the photo if the photo/screen aspect ratios are within this percentage")
     options = parser.parse_args()
 
     width = None
@@ -163,7 +163,7 @@ if __name__ == "__main__":
             width, height = options.size.split("x")
             width, height = int(width), int(height)
         except ValueError:
-            parser.error("Please specify image size as 'widthxheight'\n(eg: -r 1920x1080)")
+            parser.error("Please specify photo size as 'widthxheight'\n(eg: -r 1920x1080)")
 
     Main(slide_seconds=options.slide_seconds,
          width=width, height=height,
