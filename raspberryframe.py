@@ -37,9 +37,9 @@ class RaspberryFrame:
         else:
             self._setup_framebuffer_driver()
             screen = pygame.display.set_mode(self._get_display_size(), pygame.FULLSCREEN)
+            pygame.mouse.set_visible(False)
 
         screen.fill(pygame.Color("BLACK"))
-        pygame.mouse.set_visible(False)
         pygame.display.update()
         return screen
 
@@ -135,7 +135,7 @@ class Main:
                     gobject.source_remove(self.timer)
                 self.slideshow_next_cb()
 
-            if event.type == pygame.MOUSEBUTTONUP:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = event.pos
                 if self.swap_axes:
                     pos = (pos[1]*self.frame.width/self.frame.height,
