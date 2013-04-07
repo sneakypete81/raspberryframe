@@ -1,6 +1,7 @@
 import os
 import logging
 import pygame
+import sgc
 
 logger = logging.getLogger("Raspberry Frame")
 
@@ -14,13 +15,14 @@ def _setup(width, height):
     if os.getenv('DISPLAY'):
         logger.info("X session found - using an X window for output")
         pygame.display.init()
+        pygame.font.init()
         if width and height:
-            screen = pygame.display.set_mode((width, height))
+            screen = sgc.surface.Screen((width, height))
         else:
-            screen = pygame.display.set_mode()
+            screen = sgc.surface.Screen()
     else:
         _setup_framebuffer_driver()
-        screen = pygame.display.set_mode(_get_display_size(), pygame.FULLSCREEN)
+        screen = sgc.surface.Screen(_get_display_size(), pygame.FULLSCREEN)
         pygame.mouse.set_visible(False)
 
     screen.fill(pygame.Color("BLACK"))
