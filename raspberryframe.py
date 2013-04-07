@@ -6,6 +6,7 @@ import argparse
 import logging
 import pygame
 import gobject
+import display
 from providers import openphoto_provider
 
 CACHE_PATH = os.path.expanduser("~/.raspberryframe_cache")
@@ -18,52 +19,11 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 class RaspberryFrame:
-    def __init__(self, width=None, height=None, crop_threshold=10):
-        self.screen = self._setup(width, height)
-        if width and height:
-            self.width, self.height = width, height
-        else:
-            self.width, self.height = self._get_display_size()
+    def __init__(self, screen, width=None, height=None, crop_threshold=10):
+        self.screen = screen
+        self.width = width
+        self.height = height
         self.crop_threshold = crop_threshold
-
-    def _setup(self, width, height):
-        if os.getenv('DISPLAY'):
-            logger.info("X session found - using an X window for output")
-            pygame.display.init()
-            if width and height:
-                screen = pygame.display.set_mode((width, height))
-            else:
-                screen = pygame.display.set_mode()
-        else:
-            self._setup_framebuffer_driver()
-            screen = pygame.display.set_mode(self._get_display_size(), pygame.FULLSCREEN)
-            pygame.mouse.set_visible(False)
-
-        screen.fill(pygame.Color("BLACK"))
-        pygame.display.update()
-        return screen
-
-    @staticmethod
-    def _setup_framebuffer_driver():
-        found = False
-        for driver in DRIVERS:
-            os.putenv("SDL_VIDEODRIVER", driver)
-            logger.debug("Trying to load %s..." % driver)
-            try:
-                pygame.display.init()
-            except pygame.error as error:
-                logger.debug("%s failed to load: %s" % (driver, str(error)))
-            else:
-                logger.info("%s successfully loaded" % driver)
-                found = True
-                break
-        if not found:
-            raise Exception('No suitable video driver found!')
-
-    @staticmethod
-    def _get_display_size():
-        display_info = pygame.display.Info()
-        return display_info.current_w, display_info.current_h
 
     def letterbox(self, photo):
         width, height = photo.get_size()
@@ -103,8 +63,9 @@ class RaspberryFrame:
 
 class Main:
     def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10, swap_axes=False):
-        self.frame = RaspberryFrame(width, height, crop_threshold)
-        self.provider = openphoto_provider.OpenPhoto(self.frame.width, self.frame.height, CACHE_PATH, CACHE_SIZE_MB)
+        self.screen, self.width, self.height = display.init(width, height)
+        self.frame = RaspberryFrame(self.screen, self.width, self.height, crop_threshold)
+        self.provider = openphoto_provider.OpenPhoto(self.width, self.height, CACHE_PATH, CACHE_SIZE_MB)
         self.clock = pygame.time.Clock()
         self.slide_seconds = slide_seconds
         self.swap_axes = swap_axes
@@ -138,8 +99,8 @@ class Main:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = event.pos
                 if self.swap_axes:
-                    pos = (pos[1]*self.frame.width/self.frame.height,
-                           pos[0]*self.frame.height/self.frame.width)
+                    pos = (pos[1]*self.width/self.height,
+                           pos[0]*self.height/self.width)
                 print pos
         return True
 
