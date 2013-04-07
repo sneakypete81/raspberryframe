@@ -5,6 +5,8 @@ import sgc
 
 logger = logging.getLogger("Raspberry Frame")
 
+DRIVERS = ['directfb', 'fbcon', 'svgalib']
+
 def init(width=None, height=None):
     screen = _setup(width, height)
     if not (width and height):
@@ -12,10 +14,10 @@ def init(width=None, height=None):
     return screen, width, height
 
 def _setup(width, height):
+    pygame.font.init()
     if os.getenv('DISPLAY'):
         logger.info("X session found - using an X window for output")
         pygame.display.init()
-        pygame.font.init()
         if width and height:
             screen = sgc.surface.Screen((width, height))
         else:

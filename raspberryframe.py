@@ -14,8 +14,6 @@ from providers import openphoto_provider
 CACHE_PATH = os.path.expanduser("~/.raspberryframe_cache")
 CACHE_SIZE_MB = 1024 # Limit cache to 1GB
 
-DRIVERS = ['directfb', 'fbcon', 'svgalib']
-
 logger = logging.getLogger("Raspberry Frame")
 logger.addHandler(logging.StreamHandler())
 
