@@ -6,6 +6,7 @@ import argparse
 import logging
 import pygame
 import gobject
+
 import display
 from providers import openphoto_provider
 
@@ -15,7 +16,6 @@ CACHE_SIZE_MB = 1024 # Limit cache to 1GB
 DRIVERS = ['directfb', 'fbcon', 'svgalib']
 
 logger = logging.getLogger("Raspberry Frame")
-logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 class RaspberryFrame:
@@ -105,6 +105,7 @@ class Main:
         return True
 
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Plays an OpenPhoto slideshow to a framebuffer.")
     parser.add_argument("-t", "--slide_seconds", type=int, default=5,
@@ -115,7 +116,14 @@ if __name__ == "__main__":
                         help="Swap the x/y axes of the touchscreen")
     parser.add_argument("-c", "--crop_threshold", type=int, default=10,
                         help="Crop the photo if the photo/screen aspect ratios are within this percentage")
+    parser.add_argument("-d", "--debug", action="store_true",
+                        help="Print additional debug information")
     options = parser.parse_args()
+
+    if options.debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
 
     width = None
     height = None
