@@ -7,6 +7,7 @@ import logging
 import pygame
 import gobject
 import sgc
+from sgc.locals import *
 
 import display
 from providers import openphoto_provider
@@ -70,22 +71,22 @@ class Overlay:
         self.height = height
         self._is_active = False
 
-        self.left = sgc.Button(label="<", pos=(10, height/2-10))
-        self.right = sgc.Button(label=">", pos=(width-120, height/2-10))
+        self.back = sgc.Button(label="<", pos=(10, height/2-10))
+        self.forward = sgc.Button(label=">", pos=(width-120, height/2-10))
         self.star = sgc.Button(label="*", pos=(width/2-10, 10))
-        self.widgets = [self.left, self.right, self.star]
+        self.widgets = [self.back, self.forward, self.star]
 
-    def add(self):
+    def add(self, fade=True):
         logger.debug("Add overlay")
         self._is_active = True
         for widget in self.widgets:
-            widget.add()
+            widget.add(fade=fade)
 
-    def remove(self):
+    def remove(self, fade=True):
         logger.debug("Remove overlay")
         self._is_active = False
         for widget in self.widgets:
-            widget.remove(fade=False)
+            widget.remove(fade=fade)
 
     def active(self):
         return self._is_active
@@ -121,8 +122,18 @@ class Main:
         pygame.display.flip()
 
         for event in pygame.event.get():
+            sgc.event(event)
+
             if event.type == pygame.QUIT:
                 sys.exit()
+
+            if event.type == GUI:
+                if event.widget == self.overlay.star:
+                    print "star"
+                elif event.widget == self.overlay.back:
+                    print "back"
+                if event.widget == self.overlay.forward:
+                    print "forward"
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -135,8 +146,9 @@ class Main:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.overlay.active():
-                    self.overlay.remove()
-                    self.frame.paint()
+                    pass # TODO: button press events not trapped
+                    # self.overlay.remove(fade=False)
+                    # self.frame.paint()
                 else:
                     self.overlay.add()
 
@@ -146,7 +158,6 @@ class Main:
                            pos[0]*self.height/self.width)
                 print pos
         return True
-
 
 
 if __name__ == "__main__":
