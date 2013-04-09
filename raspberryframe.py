@@ -106,7 +106,7 @@ class Overlay(sgc.Container):
 ############################################################
 
 class Main:
-    def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10, swap_axes=False):
+    def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10):
         self.screen, self.width, self.height = display.init(width, height)
 
         self.frame = RaspberryFrame((self.width, self.height), crop_threshold)
@@ -117,7 +117,6 @@ class Main:
 
         self.clock = pygame.time.Clock()
         self.slide_seconds = slide_seconds
-        self.swap_axes = swap_axes
         self.timer = None
 
     def run(self):
@@ -191,8 +190,6 @@ if __name__ == "__main__":
                         help="Delay between slides in seconds (default:5)")
     parser.add_argument("-s", "--size", default=None,
                         help="Target photo size (default:screen resolution)")
-    parser.add_argument("-x", "--swap_axes", action="store_true",
-                        help="Swap the x/y axes of the touchscreen")
     parser.add_argument("-c", "--crop_threshold", type=int, default=10,
                         help="Crop the photo if the photo/screen aspect ratios are within this percentage")
     parser.add_argument("-d", "--debug", action="store_true",
@@ -215,7 +212,6 @@ if __name__ == "__main__":
 
     Main(slide_seconds=options.slide_seconds,
          width=width, height=height,
-         crop_threshold=options.crop_threshold,
-         swap_axes=options.swap_axes).run()
+         crop_threshold=options.crop_threshold).run()
 
 
