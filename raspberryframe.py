@@ -4,8 +4,8 @@ import sys
 import time
 import argparse
 import logging
-import pygame
 import gobject
+import pygame
 import sgc
 from sgc.locals import *
 
@@ -18,32 +18,35 @@ CACHE_SIZE_MB = 1024 # Limit cache to 1GB
 logger = logging.getLogger("Raspberry Frame")
 logger.addHandler(logging.StreamHandler())
 
-class RaspberryFrame:
-    def __init__(self, screen, width, height, crop_threshold=10):
-        self.screen = screen
-        self.width = width
-        self.height = height
+class RaspberryFrame(sgc.Simple):
+    _can_focus = True
+
+    def __init__(self, surf=None, flags=None, crop_threshold=10, **kwargs):
+        sgc.Simple.__init__(self, surf, flags, **kwargs)
         self.crop_threshold = crop_threshold
-        self.photo = None
+
+    def _event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.rect_abs.collidepoint(event.pos):
+                self.on_click()
+
+    def on_click(self):
+        pygame.event.post(self._create_event("click"))
 
     def show_photo(self, photo_file):
         logger.debug("Loading photo...")
         photo = pygame.image.load(photo_file)
         photo.convert()
-        self.photo = self._letterbox(photo)
-        self.paint()
+        photo = self._letterbox(photo)
 
-    def paint(self):
-        logger.debug("Painting photo...")
-        self.screen.fill(pygame.Color("BLACK"))
-        if self.photo:
-            self.screen.blit(self.photo, self._centre_offset(self.photo))
+        self.image.fill(pygame.Color("BLACK"))
+        self.image.blit(photo, self._centre_offset(photo))
 
     def _letterbox(self, photo):
         width, height = photo.get_size()
 
-        width_scale_factor = 1.0 * width / self.width
-        height_scale_factor = 1.0 * height / self.height
+        width_scale_factor = 1.0 * width / self.image.get_width()
+        height_scale_factor = 1.0 * height / self.image.get_height()
 
         # Use the largest scale factor, to prevent cropping
         scale_factor = max(width_scale_factor, height_scale_factor)
@@ -63,9 +66,10 @@ class RaspberryFrame:
 
     def _centre_offset(self, photo):
         width, height = photo.get_size()
-        return ((self.width / 2 - width / 2), (self.height / 2 - height / 2))
+        return ((self.image.get_width() / 2 - width / 2),
+                (self.image.get_height() / 2 - height / 2))
 
-class Overlay:
+class Overlay(sgc.Container):
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -97,7 +101,9 @@ class Main:
     def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10, swap_axes=False):
         self.screen, self.width, self.height = display.init(width, height)
 
-        self.frame = RaspberryFrame(self.screen, self.width, self.height, crop_threshold)
+        self.frame = RaspberryFrame((self.width, self.height), crop_threshold)
+        # self.frame = RaspberryFrame("/home/pete/Pictures/spotify.png", crop_threshold)
+        self.frame.add(fade=False)
         self.overlay = Overlay(self.width, self.height)
         self.provider = openphoto_provider.OpenPhoto(self.width, self.height, CACHE_PATH, CACHE_SIZE_MB)
 
@@ -128,6 +134,12 @@ class Main:
                 sys.exit()
 
             if event.type == GUI:
+                if event.widget == self.frame:
+                    print "background"
+                    if self.overlay.active():
+                        self.overlay.remove()
+                    else:
+                        self.overlay.add()
                 if event.widget == self.overlay.star:
                     print "star"
                 elif event.widget == self.overlay.back:
@@ -144,13 +156,12 @@ class Main:
                     gobject.source_remove(self.timer)
                 self.slideshow_next_cb()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.overlay.active():
-                    pass # TODO: button press events not trapped
-                    # self.overlay.remove(fade=False)
-                    # self.frame.paint()
-                else:
-                    self.overlay.add()
+            # if event.type == pygame.MOUSEBUTTONDOWN:
+                # if self.overlay.active():
+                    # pass # TODO: button press events not trapped
+                    # self.overlay.remove()
+                # else:
+                    # self.overlay.add()
 
                 pos = event.pos
                 if self.swap_axes:
