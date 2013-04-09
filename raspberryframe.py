@@ -123,11 +123,26 @@ class Main:
     def run(self):
         gobject.idle_add(self.pygame_loop_cb)
         self.slideshow_next_cb()
+        self.start_slideshow()
         gobject.MainLoop().run()
 
-    def slideshow_next_cb(self):
-        self.frame.show_photo(self.provider.random_photo())
+    def start_slideshow(self):
         self.timer = gobject.timeout_add(self.slide_seconds*1000, self.slideshow_next_cb)
+
+    def stop_slideshow(self):
+        if self.timer:
+            gobject.source_remove(self.timer)
+        self.timer = None
+
+    def random_photo(self, increment):
+        """Show a photo and restart the slideshow timer"""
+        self.frame.show_photo(self.provider.random_photo(increment))
+        if self.timer:
+            self.stop_slideshow()
+            self.start_slideshow()
+
+    def slideshow_next_cb(self):
+        self.random_photo(+1)
         return False
 
     def pygame_loop_cb(self):
@@ -143,17 +158,20 @@ class Main:
 
             if event.type == GUI:
                 if event.widget == self.frame:
-                    print "background"
                     if self.overlay.active():
                         self.overlay.remove()
+                        self.start_slideshow()
                     else:
+                        self.stop_slideshow()
                         self.overlay.add()
                 if event.widget == self.overlay.star:
-                    print "star"
+                    logger.debug("Star")
                 elif event.widget == self.overlay.back:
-                    print "back"
+                    logger.debug("Back")
+                    self.random_photo(-1)
                 if event.widget == self.overlay.forward:
-                    print "forward"
+                    logger.debug("Forward")
+                    self.random_photo(+1)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -164,18 +182,6 @@ class Main:
                     gobject.source_remove(self.timer)
                 self.slideshow_next_cb()
 
-            # if event.type == pygame.MOUSEBUTTONDOWN:
-                # if self.overlay.active():
-                    # pass # TODO: button press events not trapped
-                    # self.overlay.remove()
-                # else:
-                    # self.overlay.add()
-
-                pos = event.pos
-                if self.swap_axes:
-                    pos = (pos[1]*self.width/self.height,
-                           pos[0]*self.height/self.width)
-                print pos
         return True
 
 

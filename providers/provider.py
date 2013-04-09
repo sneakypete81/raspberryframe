@@ -16,8 +16,6 @@ class Provider:
         if not os.path.exists(cache_path):
             os.makedirs(cache_path)
 
-        self._randomise()
-
     def get_photo_count(self):
         """Returns the number of photos available to display"""
         raise NotImplementedError("This method must be implemented in the provider class")
@@ -34,8 +32,8 @@ class Provider:
         """Given a photo object, return a file handle for the photo"""
         raise NotImplementedError("This method must be implemented in the provider class")
 
-    def _randomise(self):
-        self.current_photo_number = 0
+    def _shuffle(self):
+        logger.debug("Shuffling...")
         self.shuffled_photos = range(self.get_photo_count())
         random.shuffle(self.shuffled_photos)
 
@@ -68,15 +66,18 @@ class Provider:
             cache_bytes = cache_bytes - os.path.getsize(filepath)
             os.remove(filepath)
 
-    def random_photo(self):
+    def random_photo(self, increment=1):
+        self.current_photo_number += increment
+
+        if self.current_photo_number < 0:
+            self.current_photo_number = 0
+
+        # Reshuffle if necessary
+        if (self.current_photo_number >= len(self.shuffled_photos) or
+            self.get_photo_count() != len(self.shuffled_photos)):
+            self._shuffle()
+            self.current_photo_number = 0
+
         photo_index = self.shuffled_photos[self.current_photo_number]
         photo_object = self.get_photo_object(photo_index)
-
-        self.current_photo_number += 1
-
-        # Re-randomise if necessary
-        if (self.current_photo_number >= len(self.shuffled_photos) or
-            self.get_photo_count != len(self.shuffled_photos)):
-            self._randomise()
-
         return self.get_photo_cached(photo_object)
