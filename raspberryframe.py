@@ -69,15 +69,23 @@ class RaspberryFrame(sgc.Simple):
         return ((self.image.get_width() / 2 - width / 2),
                 (self.image.get_height() / 2 - height / 2))
 
+class LayeredButton(sgc.Button):
+    """
+    Layered Button widget, to prevent click events from propagating
+    through to the background frame
+    """
+    _layered = True
+
 class Overlay(sgc.Container):
+
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self._is_active = False
 
-        self.back = sgc.Button(label="<", pos=(10, height/2-10))
-        self.forward = sgc.Button(label=">", pos=(width-120, height/2-10))
-        self.star = sgc.Button(label="*", pos=(width/2-10, 10))
+        self.back = LayeredButton(widget=self, label="<", pos=(10, height/2-10))
+        self.forward = LayeredButton(widget=self, label=">", pos=(width-120, height/2-10))
+        self.star = LayeredButton(widget=self, label="*", pos=(width/2-10, 10))
         self.widgets = [self.back, self.forward, self.star]
 
     def add(self, fade=True):
