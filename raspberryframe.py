@@ -76,8 +76,7 @@ class LayeredButton(sgc.Button):
     """
     _layered = True
 
-class Overlay(sgc.Container):
-
+class Overlay:
     def __init__(self, width, height):
         self.width = width
         self.height = height
