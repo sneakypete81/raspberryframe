@@ -12,6 +12,37 @@ from sgc.locals import *
 import display
 from providers import openphoto_provider
 
+
+# Frame:
+#   p = Provider(shuffle=True)
+#   handle = p.next()
+#   # wait for PhotoInfo(handle) event
+#   # wait for PhotoLoaded(handle) event
+#
+# Provider:
+#   init:
+#     info_queue.push_front(first_five)
+#     info_thread_run()
+#
+#   next:
+#     if info_queue == []:
+#       info_thread_run(req)
+#     info_queue.push_front(req)
+#
+#   info_done:
+#     event(PhotoInfo(handle))
+#     if download_queue == []:
+#       download_thread_run(req)
+#     download_queue.push_front(req)
+#
+#     if info_queue != []:
+#       info_thread_run(info_queue.pop())
+#
+#   download_done:
+#     event(PhotoDownload(handle)
+#     if download_queue != []:
+#       download_thread_run(download_queue.pop())
+
 CACHE_PATH = os.path.expanduser("~/.raspberryframe_cache")
 CACHE_SIZE_MB = 1024 # Limit cache to 1GB
 
@@ -132,15 +163,15 @@ class Main:
             gobject.source_remove(self.timer)
         self.timer = None
 
-    def random_photo(self, increment):
+    def show_photo(self, increment):
         """Show a photo and restart the slideshow timer"""
-        self.frame.show_photo(self.provider.random_photo(increment))
+        self.frame.show_photo(self.provider.get_photo(increment))
         if self.timer:
             self.stop_slideshow()
             self.start_slideshow()
 
     def slideshow_next_cb(self):
-        self.random_photo(+1)
+        self.show_photo(+1)
         return False
 
     def pygame_loop_cb(self):
@@ -166,10 +197,10 @@ class Main:
                     logger.debug("Star")
                 elif event.widget == self.overlay.back:
                     logger.debug("Back")
-                    self.random_photo(-1)
+                    self.show_photo(-1)
                 if event.widget == self.overlay.forward:
                     logger.debug("Forward")
-                    self.random_photo(+1)
+                    self.show_photo(+1)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:

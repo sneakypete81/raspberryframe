@@ -5,12 +5,14 @@ import logging
 logger = logging.getLogger("Raspberry Frame")
 
 class Provider:
-    def __init__(self, width, height, cache_path, cache_size_mb):
+    def __init__(self, width, height, cache_path, cache_size_mb, shuffle=True):
         self.width = width
         self.height = height
         self.cache_path = cache_path
         self.cache_size_mb = cache_size_mb
+        self.shuffle = True
         self.shuffled_photos = []
+        self.cached_photo_objects = {} # keyed by index
         self.current_photo_number = 0
 
         if not os.path.exists(cache_path):
@@ -33,9 +35,10 @@ class Provider:
         raise NotImplementedError("This method must be implemented in the provider class")
 
     def _shuffle(self):
-        logger.debug("Shuffling...")
         self.shuffled_photos = range(self.get_photo_count())
-        random.shuffle(self.shuffled_photos)
+        if self.shuffle:
+            logger.debug("Shuffling...")
+            random.shuffle(self.shuffled_photos)
 
     def get_photo_cached(self, photo_object):
         # TODO: Check hash, if there's an API for this
@@ -66,7 +69,7 @@ class Provider:
             cache_bytes = cache_bytes - os.path.getsize(filepath)
             os.remove(filepath)
 
-    def random_photo(self, increment=1):
+    def get_photo(self, increment=1):
         self.current_photo_number += increment
 
         if self.current_photo_number < 0:
@@ -77,7 +80,16 @@ class Provider:
             self.get_photo_count() != len(self.shuffled_photos)):
             self._shuffle()
             self.current_photo_number = 0
+            self.cached_photo_objects = {}
 
         photo_index = self.shuffled_photos[self.current_photo_number]
-        photo_object = self.get_photo_object(photo_index)
+
+        # Get the (cached) photo object
+        if photo_index in self.cached_photo_objects:
+            photo_object = self.cached_photo_objects[photo_index]
+        else:
+            photo_object = self.get_photo_object(photo_index)
+            self.cached_photo_objects[photo_index] = photo_object
+
+        # Get the (cached) photo
         return self.get_photo_cached(photo_object)
