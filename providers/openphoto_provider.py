@@ -24,7 +24,7 @@ class OpenPhoto(Provider):
         """Given a photo index, return a unique object for that photo"""
         returnSizes = "%sx%s" % (self.width, self.height)
         photo_object = self._openphoto.photos.list(pageSize=1,
-                                                   page=photo_index,
+                                                   page=photo_index + 1, # First page is p1
                                                    returnSizes=returnSizes)[0]
         # Keep the photo count up to date, to save API calls
         self._photo_count = photo_object.totalPages
