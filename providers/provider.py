@@ -10,7 +10,7 @@ class Provider:
         self.height = height
         self.cache_path = cache_path
         self.cache_size_mb = cache_size_mb
-        self.shuffle = True
+        self.shuffle = shuffle
         self.shuffled_photos = []
         self.cached_photo_objects = {} # keyed by index
         self.current_photo_number = 0
@@ -83,6 +83,8 @@ class Provider:
             self.cached_photo_objects = {}
 
         photo_index = self.shuffled_photos[self.current_photo_number]
+
+        logger.debug("Photo number %d (shuffled index %d)" % (self.current_photo_number, photo_index))
 
         # Get the (cached) photo object
         if photo_index in self.cached_photo_objects:
