@@ -65,7 +65,7 @@ class RaspberryFrame(sgc.Simple):
         pygame.event.post(self._create_event("click"))
 
     def show_photo(self, photo_file):
-        logger.debug("Loading photo...")
+        logger.debug("Displaying photo")
         photo = pygame.image.load(photo_file)
         photo.convert()
         photo = self._letterbox(photo)
@@ -136,14 +136,14 @@ class Overlay:
 ############################################################
 
 class Main:
-    def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10):
+    def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10, shuffle=True):
         self.screen, self.width, self.height = display.init(width, height)
 
         self.frame = RaspberryFrame((self.width, self.height), crop_threshold)
         # self.frame = RaspberryFrame("/home/pete/Pictures/spotify.png", crop_threshold)
         self.frame.add(fade=False)
         self.overlay = Overlay(self.width, self.height)
-        self.provider = openphoto_provider.OpenPhoto(self.width, self.height, CACHE_PATH, CACHE_SIZE_MB)
+        self.provider = openphoto_provider.OpenPhoto(self.width, self.height, CACHE_PATH, CACHE_SIZE_MB, shuffle=shuffle)
 
         self.clock = pygame.time.Clock()
         self.slide_seconds = slide_seconds
@@ -222,6 +222,8 @@ if __name__ == "__main__":
                         help="Target photo size (default:screen resolution)")
     parser.add_argument("-c", "--crop_threshold", type=int, default=10,
                         help="Crop the photo if the photo/screen aspect ratios are within this percentage")
+    parser.add_argument("-n", "--no-shuffle", action="store_true",
+                        help="Disable shuffle")
     parser.add_argument("-d", "--debug", action="store_true",
                         help="Print additional debug information")
     options = parser.parse_args()
@@ -242,6 +244,7 @@ if __name__ == "__main__":
 
     Main(slide_seconds=options.slide_seconds,
          width=width, height=height,
-         crop_threshold=options.crop_threshold).run()
+         crop_threshold=options.crop_threshold,
+         shuffle=(not options.no_shuffle)).run()
 
 
