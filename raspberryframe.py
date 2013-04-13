@@ -171,7 +171,7 @@ class Main:
             self.start_slideshow()
 
     def slideshow_next_cb(self):
-        self.provider.get_photo(+1)
+        self.provider.next_photo(+1)
         return False
 
     def pygame_loop_cb(self):
@@ -204,10 +204,10 @@ class Main:
                     logger.debug("Star")
                 elif event.widget == self.overlay.back:
                     logger.debug("Back")
-                    self.provider.get_photo(-1)
+                    self.provider.next_photo(-1)
                 elif event.widget == self.overlay.forward:
                     logger.debug("Forward")
-                    self.provider.get_photo(+1)
+                    self.provider.next_photo(+1)
 
         return True
 

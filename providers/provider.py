@@ -90,7 +90,7 @@ class Provider:
             cache_bytes = cache_bytes - os.path.getsize(filepath)
             os.remove(filepath)
 
-    def get_photo(self, increment=1):
+    def next_photo(self, increment=1):
         self.current_photo_number += increment
 
         if self.current_photo_number < 0:
