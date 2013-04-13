@@ -1,10 +1,14 @@
 import os
 import random
 import logging
+import pygame
 
 logger = logging.getLogger("Raspberry Frame")
 
 class Provider:
+    # No standard way of picking an event number, we just need to ensure this is unused
+    PROVIDER_EVENT = pygame.USEREVENT + 1
+
     def __init__(self, width, height, cache_path, cache_size_mb, shuffle=True):
         self.width = width
         self.height = height
@@ -34,6 +38,23 @@ class Provider:
         """Given a photo object, return a file handle for the photo"""
         raise NotImplementedError("This method must be implemented in the provider class")
 
+    def get_photo_tags(self, photo_object):
+        """Given a photo object, return its tag list"""
+        raise NotImplementedError("This method must be implemented in the provider class")
+
+    def _create_event(self, name, **kwargs):
+        """
+        Returns a GUI `pygame.event.Event` object. The first argument must be
+        the value for `name` and should roughly describe the event.
+        Optional keyword arguments can also be passed with additional
+        attributes for the event.
+
+        """
+        return pygame.event.Event(
+            self.PROVIDER_EVENT,
+            dict(kwargs, **{"name": name, "object_class": self.__class__,
+                            "object": self}))
+
     def _shuffle(self):
         self.shuffled_photos = range(self.get_photo_count())
         if self.shuffle:
@@ -57,7 +78,7 @@ class Provider:
             photo_file.seek(0)
 
         self.trim_cache()
-        return photo_file
+        pygame.event.post(self._create_event("photo_file", photo_file=photo_file))
 
     def trim_cache(self):
         """ Delete photos from the cache until it's below the maximum size """
@@ -93,5 +114,8 @@ class Provider:
             photo_object = self.get_photo_object(photo_index)
             self.cached_photo_objects[photo_index] = photo_object
 
+        pygame.event.post(self._create_event("photo_object", photo_object=photo_object))
+
         # Get the (cached) photo
-        return self.get_photo_cached(photo_object)
+        # The photo file will be returned through a "photo_file" event
+        self.get_photo_cached(photo_object)

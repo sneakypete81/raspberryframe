@@ -38,3 +38,6 @@ class OpenPhoto(Provider):
         """Given a photo object, return a file handle for the photo"""
         url = photo_object.get_fields()["path%dx%d" % (self.width, self.height)]
         return StringIO(urllib2.urlopen(url).read())
+
+    def get_photo_tags(self, photo_object):
+        return photo_object.tags

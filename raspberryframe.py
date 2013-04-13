@@ -163,15 +163,15 @@ class Main:
             gobject.source_remove(self.timer)
         self.timer = None
 
-    def show_photo(self, increment):
+    def show_photo(self, photo_file):
         """Show a photo and restart the slideshow timer"""
-        self.frame.show_photo(self.provider.get_photo(increment))
+        self.frame.show_photo(photo_file)
         if self.timer:
             self.stop_slideshow()
             self.start_slideshow()
 
     def slideshow_next_cb(self):
-        self.show_photo(+1)
+        self.provider.get_photo(+1)
         return False
 
     def pygame_loop_cb(self):
@@ -185,6 +185,13 @@ class Main:
             if event.type == pygame.QUIT:
                 sys.exit()
 
+            if event.type == self.provider.PROVIDER_EVENT:
+                if event.name == "photo_object":
+                    logger.debug(event.photo_object)
+                    logger.debug("Tags: %s" % self.provider.get_photo_tags(event.photo_object))
+                if event.name == "photo_file":
+                    self.show_photo(event.photo_file)
+
             if event.type == GUI:
                 if event.widget == self.frame:
                     if self.overlay.active():
@@ -197,19 +204,10 @@ class Main:
                     logger.debug("Star")
                 elif event.widget == self.overlay.back:
                     logger.debug("Back")
-                    self.show_photo(-1)
-                if event.widget == self.overlay.forward:
+                    self.provider.get_photo(-1)
+                elif event.widget == self.overlay.forward:
                     logger.debug("Forward")
-                    self.show_photo(+1)
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    sys.exit()
-                if event.key < pygame.K_a or event.key > pygame.K_z:
-                    continue
-                if self.timer is not None:
-                    gobject.source_remove(self.timer)
-                self.slideshow_next_cb()
+                    self.provider.get_photo(+1)
 
         return True
 
