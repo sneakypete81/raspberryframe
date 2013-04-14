@@ -123,17 +123,17 @@ class Overlay:
                                   pos=theme.star_pos(width, height))
         self.widgets = [self.back, self.forward, self.star]
 
-    def add(self, fade=True):
+    def add(self, fade=True, fade_delay=1):
         logger.debug("Add overlay")
         self._is_active = True
         for widget in self.widgets:
-            widget.add(fade=fade)
+            widget.add(fade=fade, fade_delay=fade_delay)
 
-    def remove(self, fade=True):
+    def remove(self, fade=True, fade_delay=1):
         logger.debug("Remove overlay")
         self._is_active = False
         for widget in self.widgets:
-            widget.remove(fade=fade)
+            widget.remove(fade=fade, fade_delay=fade_delay)
 
     def active(self):
         return self._is_active

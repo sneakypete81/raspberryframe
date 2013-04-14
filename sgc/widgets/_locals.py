@@ -45,9 +45,9 @@ def update(time):
         if widget._fade is not None:
             widget.image.set_alpha(widget._fade)
             if widget._fade_up:
-                widget._fade += time / 3.
+                widget._fade += float(time) / widget._fade_delay
             else:
-                widget._fade -= time / 4.
+                widget._fade -= float(time) / widget._fade_delay
             if widget._fade <= 0:
                 # Remove after fading
                 widget.kill()

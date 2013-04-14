@@ -46,6 +46,7 @@ class Simple(pygame.sprite.Sprite):
 
     _fade = None  # Alpha level when fading
     _fade_up = True
+    _fade_delay = 1
     _custom_image = False
     _custom_extra = ()
     _label = None
@@ -154,7 +155,7 @@ class Simple(pygame.sprite.Sprite):
         """Widgets should overload for custom widget configuration."""
         pass
 
-    def add(self, order=None, fade=True, focus=False):
+    def add(self, order=None, fade=True, focus=False, fade_delay=3):
         """
         Add widget to screen.
 
@@ -165,13 +166,17 @@ class Simple(pygame.sprite.Sprite):
           fade: True if widget should fade in, False if not.
           focus: To focus widget immediately, use 1 if focused by keyboard,
               2 if by mouse, otherwise 0.
+          fade_delay: Higher numbers fade the widget in more slowly
 
         """
         added = add_widget(self, order, focus)
 
         # Fade widget in
+        if fade_delay < 1:
+            fade_delay = 1
         if fade:
             self._fade_up = True
+            self._fade_delay = fade_delay
             if added and self._fade is None: self._fade = 1
             self.image.set_alpha(self._fade)
         else:
@@ -182,16 +187,20 @@ class Simple(pygame.sprite.Sprite):
         if self._label is not None:
             self._label.add(fade=fade)
 
-    def remove(self, fade=True):
+    def remove(self, fade=True, fade_delay=4):
         """
         Remove widget from screen.
 
         Args:
           fade: True if widget should fade out.
+          fade_delay: Higher numbers fade the widget out more slowly
 
         """
+        if fade_delay < 1:
+            fade_delay = 1
         if fade:  # Fade widget out
             self._fade_up = False
+            self._fade_delay = fade_delay
             if self._fade is None: self._fade = 250
         else:  # Remove widget immediately
             self.kill()
