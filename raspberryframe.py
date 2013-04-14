@@ -11,6 +11,7 @@ from sgc.locals import *
 
 import display
 from providers import openphoto_provider
+from themes import default
 
 
 # Frame:
@@ -108,14 +109,18 @@ class LayeredButton(sgc.Button):
     _layered = True
 
 class Overlay:
-    def __init__(self, width, height):
+    def __init__(self, theme, width, height):
+        self.theme = theme
         self.width = width
         self.height = height
         self._is_active = False
 
-        self.back = LayeredButton(widget=self, label="<", pos=(10, height/2-10))
-        self.forward = LayeredButton(widget=self, label=">", pos=(width-120, height/2-10))
-        self.star = LayeredButton(widget=self, label="*", pos=(width/2-10, 10))
+        self.back = LayeredButton(widget=self, surf=theme.back_button,
+                                  pos=theme.back_pos(width, height))
+        self.forward = LayeredButton(widget=self, surf=theme.forward_button,
+                                     pos=theme.forward_pos(width, height))
+        self.star = LayeredButton(widget=self, surf=theme.star_button,
+                                  pos=theme.star_pos(width, height))
         self.widgets = [self.back, self.forward, self.star]
 
     def add(self, fade=True):
@@ -139,11 +144,13 @@ class Main:
     def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10, shuffle=True):
         self.screen, self.width, self.height = display.init(width, height)
 
+        self.provider = openphoto_provider.OpenPhoto(self.width, self.height, CACHE_PATH, CACHE_SIZE_MB, shuffle=shuffle)
+        self.theme = default.Default()
+
         self.frame = RaspberryFrame((self.width, self.height), crop_threshold)
         # self.frame = RaspberryFrame("/home/pete/Pictures/spotify.png", crop_threshold)
         self.frame.add(fade=False)
-        self.overlay = Overlay(self.width, self.height)
-        self.provider = openphoto_provider.OpenPhoto(self.width, self.height, CACHE_PATH, CACHE_SIZE_MB, shuffle=shuffle)
+        self.overlay = Overlay(self.theme, self.width, self.height)
 
         self.clock = pygame.time.Clock()
         self.slide_seconds = slide_seconds
