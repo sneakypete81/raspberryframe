@@ -119,7 +119,7 @@ class Overlay:
                                   pos=theme.back_pos(width, height))
         self.forward = LayeredButton(widget=self, surf=theme.forward_button,
                                      pos=theme.forward_pos(width, height))
-        self.star = LayeredButton(widget=self, surf=theme.star_button,
+        self.star = LayeredButton(widget=self, surf=theme.unstarred_button,
                                   pos=theme.star_pos(width, height))
         self.widgets = [self.back, self.forward, self.star]
 
@@ -137,6 +137,13 @@ class Overlay:
 
     def active(self):
         return self._is_active
+
+    def set_star(self, value=True):
+        if value:
+            self.star._create_base_images(self.theme.starred_button)
+        else:
+            self.star._create_base_images(self.theme.unstarred_button)
+        self.star._switch()
 
 ############################################################
 
@@ -177,6 +184,9 @@ class Main:
             self.stop_slideshow()
             self.start_slideshow()
 
+    def toggle_star(self):
+        self.overlay.set_star(True)
+
     def slideshow_next_cb(self):
         self.provider.next_photo(+1)
         return False
@@ -209,6 +219,7 @@ class Main:
                         self.overlay.add()
                 if event.widget == self.overlay.star:
                     logger.debug("Star")
+                    self.toggle_star()
                 elif event.widget == self.overlay.back:
                     logger.debug("Back")
                     self.provider.next_photo(-1)
