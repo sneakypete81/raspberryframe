@@ -10,8 +10,8 @@ import sgc
 from sgc.locals import *
 
 import display
-from providers import openphoto_provider
-from themes import default
+import providers
+import themes
 
 
 # Frame:
@@ -151,8 +151,8 @@ class Main:
     def __init__(self, slide_seconds, width=None, height=None, crop_threshold=10, shuffle=True):
         self.screen, self.width, self.height = display.init(width, height)
 
-        self.provider = openphoto_provider.OpenPhoto(self.width, self.height, CACHE_PATH, CACHE_SIZE_MB, shuffle=shuffle)
-        self.theme = default.Default()
+        self.provider = providers.Provider(self.width, self.height, CACHE_PATH, CACHE_SIZE_MB, shuffle=shuffle)
+        self.theme = themes.Theme()
 
         self.frame = RaspberryFrame((self.width, self.height), crop_threshold)
         # self.frame = RaspberryFrame("/home/pete/Pictures/spotify.png", crop_threshold)
