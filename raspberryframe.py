@@ -66,7 +66,6 @@ class RaspberryFrame(sgc.Simple):
         pygame.event.post(self._create_event("click"))
 
     def show_photo(self, photo_file):
-        logger.debug("Displaying photo")
         photo = pygame.image.load(photo_file)
         photo.convert()
         photo = self._letterbox(photo)
@@ -124,13 +123,11 @@ class Overlay:
         self.widgets = [self.back, self.forward, self.star]
 
     def add(self, fade=True, fade_delay=1):
-        logger.debug("Add overlay")
         self._is_active = True
         for widget in self.widgets:
             widget.add(fade=fade, fade_delay=fade_delay)
 
     def remove(self, fade=True, fade_delay=1):
-        logger.debug("Remove overlay")
         self._is_active = False
         for widget in self.widgets:
             widget.remove(fade=fade, fade_delay=fade_delay)
@@ -191,8 +188,10 @@ class Main:
     def toggle_star(self):
         tags = self.provider.get_tags(self.photo_object)
         if self.provider.STAR_TAG in tags:
+            logger.debug("Removing star...")
             self.provider.remove_tag(self.photo_object, self.provider.STAR_TAG)
         else:
+            logger.debug("Adding star...")
             self.provider.add_tag(self.photo_object, self.provider.STAR_TAG)
         self.update_overlay()
 
@@ -230,13 +229,10 @@ class Main:
                         self.stop_slideshow()
                         self.overlay.add()
                 if event.widget == self.overlay.star:
-                    logger.debug("Star")
                     self.toggle_star()
                 elif event.widget == self.overlay.back:
-                    logger.debug("Back")
                     self.provider.next_photo(-1)
                 elif event.widget == self.overlay.forward:
-                    logger.debug("Forward")
                     self.provider.next_photo(+1)
 
         return True

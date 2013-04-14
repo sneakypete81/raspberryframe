@@ -76,10 +76,10 @@ class Provider:
         cache_file = os.path.join(self.cache_path, photo_id)
 
         if os.path.exists(cache_file):
-            logger.info("Loading photo from cache...")
+            logger.debug("Loading photo from cache...")
             photo_file = cache_file
         else:
-            logger.info("Downloading photo...")
+            logger.debug("Downloading photo...")
             # Save a copy of the photo
             photo_file = self.get_photo_file(photo_object)
             with open(cache_file, "wb") as f:
@@ -95,7 +95,7 @@ class Provider:
         files = [os.path.join(self.cache_path, f) for f in os.listdir(self.cache_path)]
         cache_bytes = sum([os.path.getsize(f) for f in files])
         while cache_bytes > self.cache_size_mb * 1024 * 1024:
-            logger.info("Trimming cache...")
+            logger.debug("Trimming cache...")
             filepath = files.pop(0)
             cache_bytes = cache_bytes - os.path.getsize(filepath)
             os.remove(filepath)
