@@ -203,11 +203,12 @@ class Main:
                 sys.exit()
 
             if event.type == self.provider.PROVIDER_EVENT:
-                if event.name == "photo_object":
-                    logger.debug(event.photo_object)
-                    logger.debug("Tags: %s" % self.provider.get_photo_tags(event.photo_object))
-                if event.name == "photo_file":
+                if event.name == "photo":
                     self.show_photo(event.photo_file)
+                    self.tags = self.provider.get_photo_tags(event.photo_object)
+
+                    logger.debug(event.photo_object)
+                    logger.debug("Tags: %s" % self.tags)
 
             if event.type == GUI:
                 if event.widget == self.frame:
