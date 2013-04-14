@@ -39,5 +39,11 @@ class OpenPhoto(Provider):
         url = photo_object.get_fields()["path%dx%d" % (self.width, self.height)]
         return StringIO(urllib2.urlopen(url).read())
 
-    def get_photo_tags(self, photo_object):
+    def get_tags(self, photo_object):
         return photo_object.tags
+
+    def add_tag(self, photo_object, tag):
+        photo_object.update(tagsAdd=tag)
+
+    def remove_tag(self, photo_object, tag):
+        photo_object.update(tagsRemove=tag)

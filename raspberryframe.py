@@ -184,8 +184,17 @@ class Main:
             self.stop_slideshow()
             self.start_slideshow()
 
+    def update_overlay(self):
+        tags = self.provider.get_tags(self.photo_object)
+        self.overlay.set_star(self.provider.STAR_TAG in tags)
+
     def toggle_star(self):
-        self.overlay.set_star(True)
+        tags = self.provider.get_tags(self.photo_object)
+        if self.provider.STAR_TAG in tags:
+            self.provider.remove_tag(self.photo_object, self.provider.STAR_TAG)
+        else:
+            self.provider.add_tag(self.photo_object, self.provider.STAR_TAG)
+        self.update_overlay()
 
     def slideshow_next_cb(self):
         self.provider.next_photo(+1)
@@ -205,10 +214,12 @@ class Main:
             if event.type == self.provider.PROVIDER_EVENT:
                 if event.name == "photo":
                     self.show_photo(event.photo_file)
-                    self.tags = self.provider.get_photo_tags(event.photo_object)
+                    self.photo_object = event.photo_object
+                    self.update_overlay()
 
-                    logger.debug(event.photo_object)
-                    logger.debug("Tags: %s" % self.tags)
+                    logger.debug(self.photo_object)
+                    tags = self.provider.get_tags(self.photo_object)
+                    logger.debug("Tags: %s" % tags)
 
             if event.type == GUI:
                 if event.widget == self.frame:

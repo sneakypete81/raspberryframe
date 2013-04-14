@@ -8,6 +8,7 @@ logger = logging.getLogger("Raspberry Frame")
 class Provider:
     # No standard way of picking an event number, we just need to ensure this is unused
     PROVIDER_EVENT = pygame.USEREVENT + 1
+    STAR_TAG = "Starred"
 
     def __init__(self, width, height, cache_path, cache_size_mb, shuffle=True):
         self.width = width
@@ -38,8 +39,16 @@ class Provider:
         """Given a photo object, return a file handle for the photo"""
         raise NotImplementedError("This method must be implemented in the provider class")
 
-    def get_photo_tags(self, photo_object):
+    def get_tags(self, photo_object):
         """Given a photo object, return its tag list"""
+        raise NotImplementedError("This method must be implemented in the provider class")
+
+    def add_tag(self, photo_object, tag):
+        """Add the tag to the specified photo object"""
+        raise NotImplementedError("This method must be implemented in the provider class")
+
+    def remove_tag(self, photo_object, tag):
+        """Remove the tag from the specified photo object"""
         raise NotImplementedError("This method must be implemented in the provider class")
 
     def _create_event(self, name, **kwargs):
