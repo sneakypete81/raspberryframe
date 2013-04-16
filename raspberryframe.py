@@ -12,7 +12,7 @@ from sgc.locals import *
 import display
 import providers
 import themes
-
+import overlay
 
 # Frame:
 #   p = Provider(shuffle=True)
@@ -100,48 +100,6 @@ class RaspberryFrame(sgc.Simple):
         return ((self.image.get_width() / 2 - width / 2),
                 (self.image.get_height() / 2 - height / 2))
 
-class LayeredButton(sgc.Button):
-    """
-    Layered Button widget, to prevent click events from propagating
-    through to the background frame
-    """
-    _layered = True
-
-class Overlay:
-    def __init__(self, theme, width, height):
-        self.theme = theme
-        self.width = width
-        self.height = height
-        self._is_active = False
-
-        self.back = LayeredButton(widget=self, surf=theme.back_button,
-                                  pos=theme.back_pos(width, height))
-        self.forward = LayeredButton(widget=self, surf=theme.forward_button,
-                                     pos=theme.forward_pos(width, height))
-        self.star = LayeredButton(widget=self, surf=theme.unstarred_button,
-                                  pos=theme.star_pos(width, height))
-        self.widgets = [self.back, self.forward, self.star]
-
-    def add(self, fade=True, fade_delay=1):
-        self._is_active = True
-        for widget in self.widgets:
-            widget.add(fade=fade, fade_delay=fade_delay)
-
-    def remove(self, fade=True, fade_delay=1):
-        self._is_active = False
-        for widget in self.widgets:
-            widget.remove(fade=fade, fade_delay=fade_delay)
-
-    def active(self):
-        return self._is_active
-
-    def set_star(self, value=True):
-        if value:
-            self.star._create_base_images(self.theme.starred_button)
-        else:
-            self.star._create_base_images(self.theme.unstarred_button)
-        self.star._switch()
-
 ############################################################
 
 class Main:
@@ -149,12 +107,12 @@ class Main:
         self.screen, self.width, self.height = display.init(width, height)
 
         self.provider = providers.Provider(self.width, self.height, CACHE_PATH, CACHE_SIZE_MB, shuffle=shuffle)
-        self.theme = themes.Theme()
+        self.theme = themes.Theme(self.width, self.height)
 
         self.frame = RaspberryFrame((self.width, self.height), crop_threshold)
         # self.frame = RaspberryFrame("/home/pete/Pictures/spotify.png", crop_threshold)
         self.frame.add(fade=False)
-        self.overlay = Overlay(self.theme, self.width, self.height)
+        self.overlay = overlay.Overlay(self.theme)
 
         self.clock = pygame.time.Clock()
         self.slide_seconds = slide_seconds
