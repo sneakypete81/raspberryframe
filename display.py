@@ -21,7 +21,7 @@ def _setup(width, height):
         if width and height:
             screen = sgc.surface.Screen((width, height))
         else:
-            screen = sgc.surface.Screen()
+            screen = sgc.surface.Screen((0,0))
     else:
         _setup_framebuffer_driver()
         screen = sgc.surface.Screen(_get_display_size(), pygame.FULLSCREEN)
