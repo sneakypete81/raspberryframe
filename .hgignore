@@ -1,4 +1,0 @@
-syntax: glob
-keys.py
-*.pyc
-*~
