@@ -3,13 +3,12 @@ import logging
 from cStringIO import StringIO
 from provider import Provider
 import openphoto
-import keys
 
 logger = logging.getLogger("Raspberry Frame")
 
 class OpenPhoto(Provider):
     def __init__(self, *args, **kwds):
-        self._openphoto = openphoto.OpenPhoto(keys.host, *keys.auth)
+        self._openphoto = openphoto.OpenPhoto()
         self._photo_count = None
         Provider.__init__(self, *args, **kwds)
 
