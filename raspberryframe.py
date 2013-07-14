@@ -110,7 +110,6 @@ class Main:
         self.theme = themes.Theme(self.width, self.height)
 
         self.frame = RaspberryFrame((self.width, self.height), crop_threshold)
-        # self.frame = RaspberryFrame("/home/pete/Pictures/spotify.png", crop_threshold)
         self.frame.add(fade=False)
         self.overlay = overlay.Overlay(self.theme)
 
