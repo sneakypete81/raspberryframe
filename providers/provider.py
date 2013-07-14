@@ -117,13 +117,17 @@ class Provider:
 
         logger.debug("Photo number %d (shuffled index %d)" % (self.current_photo_number, photo_index))
 
-        # Get the (cached) photo object
-        if photo_index in self.cached_photo_objects:
-            photo_object = self.cached_photo_objects[photo_index]
-        else:
-            photo_object = self.get_photo_object(photo_index)
-            self.cached_photo_objects[photo_index] = photo_object
+        try:
+            # Get the (cached) photo object
+            if photo_index in self.cached_photo_objects:
+                photo_object = self.cached_photo_objects[photo_index]
+            else:
+                photo_object = self.get_photo_object(photo_index)
+                self.cached_photo_objects[photo_index] = photo_object
 
-        # Get the (cached) photo
-        # The photo file will be returned through a "photo" event
-        self.get_photo_cached(photo_object)
+            # Get the (cached) photo
+            # The photo file will be returned through a "photo" event
+            self.get_photo_cached(photo_object)
+
+        except Exception as error:
+            pygame.event.post(self._create_event("error", error=error))

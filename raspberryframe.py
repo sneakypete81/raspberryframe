@@ -168,7 +168,7 @@ class Main:
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            if event.type == self.provider.PROVIDER_EVENT:
+            elif event.type == self.provider.PROVIDER_EVENT:
                 if event.name == "photo":
                     self.show_photo(event.photo_file)
                     self.photo_object = event.photo_object
@@ -178,7 +178,13 @@ class Main:
                     tags = self.provider.get_tags(self.photo_object)
                     logger.debug("Tags: %s" % tags)
 
-            if event.type == GUI:
+                elif event.name == "error":
+                    logger.error("Could not display photo: %s" % event.error)
+                    if self.timer:
+                        self.stop_slideshow()
+                        self.start_slideshow()
+
+            elif event.type == GUI:
                 if event.widget == self.frame:
                     if self.overlay.active():
                         self.overlay.remove()
