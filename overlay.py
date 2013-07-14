@@ -24,7 +24,6 @@ class Footer(sgc.Simple):
         surf = pygame.Surface(theme.footer_size, self._surf_flags)
         surf.fill((0, 0, 0, theme.footer_alpha))
         sgc.Simple.__init__(self, surf, pos=theme.footer_pos)
-        print theme.footer_pos
 
 class Overlay:
     def __init__(self, theme):
@@ -32,13 +31,13 @@ class Overlay:
         self._is_active = False
 
         self.header = Header(theme)
+        self.footer = Footer(theme)
         self.back = LayeredButton(widget=self, surf=theme.back_button,
                                   pos=theme.back_pos)
         self.forward = LayeredButton(widget=self, surf=theme.forward_button,
                                      pos=theme.forward_pos)
         self.star = LayeredButton(widget=self, surf=theme.unstarred_button,
                                   pos=theme.star_pos)
-        self.footer = Footer(theme)
         self.widgets = [self.header,
                         self.back, self.forward, self.star,
                         self.footer]

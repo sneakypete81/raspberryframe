@@ -111,11 +111,12 @@ class Main:
 
         self.frame = RaspberryFrame((self.width, self.height), crop_threshold)
         self.frame.add(fade=False)
-        self.overlay = overlay.Overlay(self.theme)
 
         self.clock = pygame.time.Clock()
         self.slide_seconds = slide_seconds
         self.timer = None
+
+        self.overlay = overlay.Overlay(self.theme)
 
     def run(self):
         gobject.idle_add(self.pygame_loop_cb)
