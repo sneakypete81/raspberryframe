@@ -87,8 +87,11 @@ class Provider:
             photo_file.seek(0)
 
         self.trim_cache()
+
+        image = pygame.image.load(photo_file)
+        image.convert()
         pygame.event.post(self._create_event("photo", photo_object=photo_object,
-                                             photo_file=photo_file))
+                                             image=image))
 
     def trim_cache(self):
         """ Delete photos from the cache until it's below the maximum size """

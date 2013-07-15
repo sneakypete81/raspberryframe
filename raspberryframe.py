@@ -65,16 +65,14 @@ class RaspberryFrame(sgc.Simple):
     def on_click(self):
         pygame.event.post(self._create_event("click"))
 
-    def show_photo(self, photo_file):
-        photo = pygame.image.load(photo_file)
-        photo.convert()
-        photo = self._letterbox(photo)
+    def show_image(self, image):
+        image = self._letterbox(image)
 
         self.image.fill(pygame.Color("BLACK"))
-        self.image.blit(photo, self._centre_offset(photo))
+        self.image.blit(image, self._centre_offset(image))
 
-    def _letterbox(self, photo):
-        width, height = photo.get_size()
+    def _letterbox(self, image):
+        width, height = image.get_size()
 
         width_scale_factor = 1.0 * width / self.image.get_width()
         height_scale_factor = 1.0 * height / self.image.get_height()
@@ -83,7 +81,7 @@ class RaspberryFrame(sgc.Simple):
         scale_factor = max(width_scale_factor, height_scale_factor)
 
         # If the difference in aspect ratios is less than aspect_error,
-        # crop the photo instead of letterboxing
+        # crop the image instead of letterboxing
         aspect_error = abs((width_scale_factor - height_scale_factor) /
                            max(width_scale_factor, height_scale_factor))
         if aspect_error <= self.crop_threshold / 100.0:
@@ -92,11 +90,11 @@ class RaspberryFrame(sgc.Simple):
         new_width = int(width / scale_factor)
         new_height = int(height / scale_factor)
 
-        return pygame.transform.scale(photo, (int(width / scale_factor),
+        return pygame.transform.scale(image, (int(width / scale_factor),
                                               int(height / scale_factor)))
 
-    def _centre_offset(self, photo):
-        width, height = photo.get_size()
+    def _centre_offset(self, image):
+        width, height = image.get_size()
         return ((self.image.get_width() / 2 - width / 2),
                 (self.image.get_height() / 2 - height / 2))
 
@@ -132,9 +130,9 @@ class Main:
             gobject.source_remove(self.timer)
         self.timer = None
 
-    def show_photo(self, photo_file):
-        """Show a photo and restart the slideshow timer"""
-        self.frame.show_photo(photo_file)
+    def show_image(self, image):
+        """Show an image and restart the slideshow timer"""
+        self.frame.show_image(image)
         if self.timer:
             self.stop_slideshow()
             self.start_slideshow()
@@ -171,7 +169,7 @@ class Main:
 
             elif event.type == self.provider.PROVIDER_EVENT:
                 if event.name == "photo":
-                    self.show_photo(event.photo_file)
+                    self.show_image(event.image)
                     self.photo_object = event.photo_object
                     self.update_overlay()
 
