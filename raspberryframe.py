@@ -141,6 +141,7 @@ class Main:
 
     def update_overlay(self):
         tags = self.provider.get_tags(self.photo_object)
+        self.overlay.set_tags(tags)
         self.overlay.set_star(self.provider.STAR_TAG in tags)
 
     def toggle_star(self):
@@ -198,6 +199,10 @@ class Main:
                     self.provider.next_photo(-1)
                 elif event.widget == self.overlay.forward:
                     self.provider.next_photo(+1)
+                elif isinstance(event.widget, overlay.TagButton):
+                    print event.widget.get_tag()
+
+
 
         return True
 

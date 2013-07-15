@@ -1,6 +1,6 @@
+import pygame
 import theme
 
-HEADER_HEIGHT = 150
 FOOTER_HEIGHT = 50
 OVERLAY_ALPHA = 128
 
@@ -11,14 +11,6 @@ BUTTON_OFFSET = 10
 class Default(theme.Theme):
     def __init__(self, *args, **kwds):
         theme.Theme.__init__(self, *args, **kwds)
-
-        self.header_size = (self.screen_width, HEADER_HEIGHT)
-        self.header_pos = (0, 0)
-        self.header_alpha = OVERLAY_ALPHA
-
-        self.footer_size = (self.screen_width, FOOTER_HEIGHT)
-        self.footer_pos = (0, self.screen_height - FOOTER_HEIGHT)
-        self.footer_alpha = OVERLAY_ALPHA
 
         self.back_button = dict(image="themes/default/arrow-left.png",
                                 over="themes/default/arrow-left.png",
@@ -40,3 +32,8 @@ class Default(theme.Theme):
                                    down="themes/default/star-fill-glow.png")
         self.star_pos = ((self.screen_width - BUTTON_WIDTH) / 2,
                          BUTTON_OFFSET)
+
+        self.tag_pos = (50, self.screen_height - FOOTER_HEIGHT)
+        self.tag_size = (self.screen_width-100, FOOTER_HEIGHT)
+        self.tag_text_colour = pygame.Color("Black")
+        self.tag_colour = (255, 255, 128)
