@@ -36,4 +36,5 @@ class Default(theme.Theme):
         self.tag_pos = (50, self.screen_height - FOOTER_HEIGHT)
         self.tag_size = (self.screen_width-100, FOOTER_HEIGHT)
         self.tag_text_colour = pygame.Color("Black")
-        self.tag_colour = (255, 255, 128)
+        self.tag_colour = (255, 255, 128, 128)
+        self.tag_padding = 10

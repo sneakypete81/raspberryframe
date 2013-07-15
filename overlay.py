@@ -13,13 +13,12 @@ class TagButton(LayeredButton):
         LayeredButton.__init__(self, widget=widget, label=label,
                                label_col=theme.tag_text_colour)
         label_rect = self._settings["label"][1].rect
-        label_size = (label_rect.width, label_rect.height)
-        print label_size
-        surf = pygame.Surface(label_size)
-        surf.fill((255, 255, 128))
+        label_size = (label_rect.width + theme.tag_padding*2, label_rect.height)
+        surf = pygame.Surface(label_size, flags=pygame.SRCALPHA)
+        surf.fill(theme.tag_colour)
         # Blit label onto button
         for line in self._settings["label"][1:]:
-            surf.blit(line.image, (0,0))
+            surf.blit(line.image, (theme.tag_padding, 0))
         self._create_base_images(surf)
         self._switch()
 
