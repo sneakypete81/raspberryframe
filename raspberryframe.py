@@ -205,8 +205,8 @@ class Main:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Plays a Trovebox slideshow to a framebuffer.")
-    parser.add_argument("-t", "--slide_seconds", type=int, default=5,
-                        help="Delay between slides in seconds (default:5)")
+    parser.add_argument("-t", "--slide_seconds", type=int, default=30,
+                        help="Delay between slides in seconds (default:30)")
     parser.add_argument("-s", "--size", default=None,
                         help="Target photo size (default:screen resolution)")
     parser.add_argument("-c", "--crop_threshold", type=int, default=10,
