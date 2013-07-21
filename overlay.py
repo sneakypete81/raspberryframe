@@ -8,33 +8,37 @@ class LayeredButton(sgc.Button):
     """
     _layered = True
 
-class TagButton(LayeredButton):
-    def __init__(self, widget, label, theme):
-        LayeredButton.__init__(self, widget=widget, label=label,
-                               label_col=theme.tag_text_colour)
-        label_rect = self._settings["label"][1].rect
-        label_size = (label_rect.width + theme.tag_padding*2, label_rect.height)
-        surf = pygame.Surface(label_size, flags=pygame.SRCALPHA)
-        surf.fill(theme.tag_colour)
-        # Blit label onto button
-        for line in self._settings["label"][1:]:
-            surf.blit(line.image, (theme.tag_padding, 0))
-        self._create_base_images(surf)
-        self._switch()
+class TagLabel(sgc.HBox):
+    def __init__(self, text, theme):
+        self.label = sgc.Label(text=text, col=theme.tag_text_colour)
+        height = self.label.rect.h
+
+        surf = pygame.Surface((height/2, height), flags=pygame.SRCALPHA)
+        pygame.draw.circle(surf, theme.tag_colour, (height/2, height/2), height/2)
+        left = sgc.Simple(surf)
+
+        surf = pygame.Surface((height/2, height), flags=pygame.SRCALPHA)
+        pygame.draw.circle(surf, theme.tag_colour, (0, height/2), height/2)
+        right = sgc.Simple(surf)
+
+        coloured_label = sgc.HBox(widgets=[self.label], col=theme.tag_colour,
+                                  border=0, spacing=0)
+
+        sgc.HBox.__init__(self, widgets=[left, coloured_label, right],
+                          border=0, spacing=0)
 
     def get_tag(self):
-        return self._settings["label"][0]
+        return self.label.text
 
 class TagList(sgc.HBox):
-    _layered = True
-
     def __init__(self, theme):
         self.buttons = []
         self.theme = theme
-        sgc.HBox.__init__(self, theme.tag_size, pos=theme.tag_pos)
+        sgc.HBox.__init__(self, theme.tag_size, pos=theme.tag_pos,
+                          spacing=theme.tag_padding)
 
     def set_tags(self, tags):
-        self.buttons = [TagButton(widget=self, label=tag, theme=self.theme)
+        self.buttons = [TagLabel(text=tag, theme=self.theme)
                         for tag in tags]
         self.config(widgets=self.buttons)
 

@@ -197,10 +197,6 @@ class Main:
                     self.provider.next_photo(-1)
                 elif event.widget == self.overlay.forward:
                     self.provider.next_photo(+1)
-                elif isinstance(event.widget, overlay.TagButton):
-                    print event.widget.get_tag()
-
-
 
         return True
 
