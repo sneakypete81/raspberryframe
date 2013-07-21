@@ -67,15 +67,15 @@ class Overlay:
 
         self.widgets = [self.back, self.forward, self.star, self.footer]
 
-    def add(self, fade=True, fade_delay=1):
+    def add(self, fade=False):
         self._is_active = True
         for widget in self.widgets:
-            widget.add(fade=fade, fade_delay=fade_delay)
+            widget.add(fade=fade)
 
-    def remove(self, fade=True, fade_delay=1):
+    def remove(self, fade=False):
         self._is_active = False
         for widget in self.widgets:
-            widget.remove(fade=fade, fade_delay=fade_delay)
+            widget.remove(fade=fade)
 
     def active(self):
         return self._is_active
