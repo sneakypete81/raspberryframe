@@ -33,8 +33,10 @@ class Default(theme.Theme):
         self.star_pos = ((self.screen_width - BUTTON_WIDTH) / 2,
                          BUTTON_OFFSET)
 
-        self.tag_pos = (50, self.screen_height - FOOTER_HEIGHT)
-        self.tag_size = (self.screen_width-100, FOOTER_HEIGHT)
+        self.tag_pos = (0, self.screen_height - FOOTER_HEIGHT)
+        self.tag_size = (self.screen_width, FOOTER_HEIGHT)
+        self.tag_border = 15
         self.tag_text_colour = pygame.Color("Black")
-        self.tag_colour = (255, 255, 128, 168)
+        self.tag_colour = (255, 255, 128)
+        self.tag_bg_colour = (0, 0, 0, 128)
         self.tag_padding = 5

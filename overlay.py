@@ -8,7 +8,7 @@ class LayeredButton(sgc.Button):
     """
     _layered = True
 
-class TagLabel(sgc.HBox):
+class Tag(sgc.HBox):
     def __init__(self, text, theme):
         self.label = sgc.Label(text=text, col=theme.tag_text_colour)
         height = self.label.rect.h
@@ -31,16 +31,19 @@ class TagLabel(sgc.HBox):
         return self.label.text
 
 class TagList(sgc.HBox):
+    _layered = True
     def __init__(self, theme):
-        self.buttons = []
+        self.tags = []
         self.theme = theme
         sgc.HBox.__init__(self, theme.tag_size, pos=theme.tag_pos,
+                          col=theme.tag_bg_colour,
+                          border=theme.tag_border,
                           spacing=theme.tag_padding)
 
     def set_tags(self, tags):
-        self.buttons = [TagLabel(text=tag, theme=self.theme)
-                        for tag in tags]
-        self.config(widgets=self.buttons)
+        self.tags = [Tag(text=tag, theme=self.theme)
+                     for tag in tags]
+        self.config(widgets=self.tags)
 
 class Overlay:
     def __init__(self, theme):
