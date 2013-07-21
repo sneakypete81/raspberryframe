@@ -143,6 +143,7 @@ class Main:
         self.overlay.set_description(description)
         self.overlay.set_tags(tags)
         self.overlay.set_star(self.provider.STAR_TAG in tags)
+        self.overlay.set_remove(self.provider.REMOVE_TAG in tags)
 
     def toggle_star(self):
         tags = self.provider.get_tags(self.photo_object)
@@ -152,6 +153,16 @@ class Main:
         else:
             logger.debug("Adding star...")
             self.provider.add_tag(self.photo_object, self.provider.STAR_TAG)
+        self.update_overlay()
+
+    def toggle_remove(self):
+        tags = self.provider.get_tags(self.photo_object)
+        if self.provider.REMOVE_TAG in tags:
+            logger.debug("Unremoving photo...")
+            self.provider.remove_tag(self.photo_object, self.provider.REMOVE_TAG)
+        else:
+            logger.debug("Removing photo...")
+            self.provider.add_tag(self.photo_object, self.provider.REMOVE_TAG)
         self.update_overlay()
 
     def slideshow_next_cb(self):
@@ -193,11 +204,13 @@ class Main:
                     else:
                         self.stop_slideshow()
                         self.overlay.add()
-                if event.widget == self.overlay.star:
+                if event.widget == self.overlay.star_button:
                     self.toggle_star()
-                elif event.widget == self.overlay.back:
+                if event.widget == self.overlay.remove_button:
+                    self.toggle_remove()
+                elif event.widget == self.overlay.back_button:
                     self.provider.next_photo(-1)
-                elif event.widget == self.overlay.forward:
+                elif event.widget == self.overlay.forward_button:
                     self.provider.next_photo(+1)
 
         return True

@@ -7,6 +7,7 @@ OVERLAY_ALPHA = 128
 BUTTON_HEIGHT = 128
 BUTTON_WIDTH = 128
 BUTTON_OFFSET = 10
+BUTTON_SPACING = 50
 
 class Default(theme.Theme):
     def __init__(self, *args, **kwds):
@@ -30,7 +31,16 @@ class Default(theme.Theme):
         self.starred_button = dict(image="themes/default/star-fill.png",
                                    over="themes/default/star-fill.png",
                                    down="themes/default/star-fill-glow.png")
-        self.star_pos = ((self.screen_width - BUTTON_WIDTH) / 2,
+        self.star_pos = ((self.screen_width - BUTTON_WIDTH*2 - BUTTON_SPACING) / 2,
+                         BUTTON_OFFSET)
+
+        self.unremoved_button = dict(image="themes/default/remove-outline.png",
+                                     over="themes/default/remove-outline.png",
+                                     down="themes/default/remove-outline-glow.png")
+        self.removed_button = dict(image="themes/default/remove-fill.png",
+                                   over="themes/default/remove-fill.png",
+                                   down="themes/default/remove-fill-glow.png")
+        self.remove_pos = ((self.screen_width + BUTTON_SPACING) / 2,
                          BUTTON_OFFSET)
 
         self.footer_colour = (0, 0, 0, 128)

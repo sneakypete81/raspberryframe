@@ -57,15 +57,19 @@ class Overlay:
         self.theme = theme
         self._is_active = False
 
-        self.back = LayeredButton(widget=self, surf=theme.back_button,
-                                  pos=theme.back_pos)
-        self.forward = LayeredButton(widget=self, surf=theme.forward_button,
-                                     pos=theme.forward_pos)
-        self.star = LayeredButton(widget=self, surf=theme.unstarred_button,
-                                  pos=theme.star_pos)
+        self.back_button = LayeredButton(widget=self, surf=theme.back_button,
+                                         pos=theme.back_pos)
+        self.forward_button = LayeredButton(widget=self, surf=theme.forward_button,
+                                            pos=theme.forward_pos)
+        self.star_button = LayeredButton(widget=self, surf=theme.unstarred_button,
+                                         pos=theme.star_pos)
+        self.remove_button = LayeredButton(widget=self, surf=theme.unremoved_button,
+                                           pos=theme.remove_pos)
         self.footer = Footer(theme)
 
-        self.widgets = [self.back, self.forward, self.star, self.footer]
+        self.widgets = [self.back_button, self.forward_button,
+                        self.star_button, self.remove_button,
+                        self.footer]
 
     def add(self, fade=False):
         self._is_active = True
@@ -82,10 +86,17 @@ class Overlay:
 
     def set_star(self, value=True):
         if value:
-            self.star._create_base_images(self.theme.starred_button)
+            self.star_button._create_base_images(self.theme.starred_button)
         else:
-            self.star._create_base_images(self.theme.unstarred_button)
-        self.star._switch()
+            self.star_button._create_base_images(self.theme.unstarred_button)
+        self.star_button._switch()
+
+    def set_remove(self, value=True):
+        if value:
+            self.remove_button._create_base_images(self.theme.removed_button)
+        else:
+            self.remove_button._create_base_images(self.theme.unremoved_button)
+        self.remove_button._switch()
 
     def set_description(self, description):
         self.footer.set_description(description)

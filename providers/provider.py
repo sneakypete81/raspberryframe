@@ -9,6 +9,7 @@ class Provider:
     # No standard way of picking an event number, we just need to ensure this is unused
     PROVIDER_EVENT = pygame.USEREVENT + 1
     STAR_TAG = "Starred"
+    REMOVE_TAG = "Removed"
 
     def __init__(self, width, height, cache_path, cache_size_mb, shuffle=True):
         self.width = width
