@@ -30,20 +30,27 @@ class Tag(sgc.HBox):
     def get_tag(self):
         return self.label.text
 
-class TagList(sgc.HBox):
+class Footer(sgc.VBox):
     _layered = True
     def __init__(self, theme):
         self.tags = []
         self.theme = theme
-        sgc.HBox.__init__(self, theme.tag_size, pos=theme.tag_pos,
-                          col=theme.tag_bg_colour,
-                          border=theme.tag_border,
-                          spacing=theme.tag_padding)
+        self.description = sgc.Label(font=sgc.Font["title"])
+        self.tag_list = sgc.HBox(theme.footer_size, border=theme.tag_border,
+                                 spacing=theme.tag_padding)
+
+        sgc.VBox.__init__(self, theme.footer_size, pos=theme.footer_pos,
+                          col=theme.footer_colour, border=theme.footer_border,
+                          widgets=[self.description, self.tag_list])
+
+    def set_description(self, description):
+        self.description.text = description
 
     def set_tags(self, tags):
         self.tags = [Tag(text=tag, theme=self.theme)
                      for tag in tags]
-        self.config(widgets=self.tags)
+        self.tag_list.config(widgets=self.tags)
+        self.config()
 
 class Overlay:
     def __init__(self, theme):
@@ -56,9 +63,9 @@ class Overlay:
                                      pos=theme.forward_pos)
         self.star = LayeredButton(widget=self, surf=theme.unstarred_button,
                                   pos=theme.star_pos)
-        self.tag_list = TagList(theme)
+        self.footer = Footer(theme)
 
-        self.widgets = [self.back, self.forward, self.star, self.tag_list]
+        self.widgets = [self.back, self.forward, self.star, self.footer]
 
     def add(self, fade=True, fade_delay=1):
         self._is_active = True
@@ -80,5 +87,8 @@ class Overlay:
             self.star._create_base_images(self.theme.unstarred_button)
         self.star._switch()
 
+    def set_description(self, description):
+        self.footer.set_description(description)
+
     def set_tags(self, tags):
-        self.tag_list.set_tags(tags)
+        self.footer.set_tags(tags)

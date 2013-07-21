@@ -138,7 +138,9 @@ class Main:
             self.start_slideshow()
 
     def update_overlay(self):
+        description = self.provider.get_description(self.photo_object)
         tags = self.provider.get_tags(self.photo_object)
+        self.overlay.set_description(description)
         self.overlay.set_tags(tags)
         self.overlay.set_star(self.provider.STAR_TAG in tags)
 

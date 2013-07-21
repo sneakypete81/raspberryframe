@@ -39,6 +39,13 @@ class Provider:
         """Given a photo object, return a file handle for the photo"""
         raise NotImplementedError("This method must be implemented in the provider class")
 
+    def get_description(self, photo_object):
+        """
+        Given a photo object, return its description.
+        If it doesn't have a description, return its filename.
+        """
+        raise NotImplementedError("This method must be implemented in the provider class")
+
     def get_tags(self, photo_object):
         """Given a photo object, return its tag list"""
         raise NotImplementedError("This method must be implemented in the provider class")

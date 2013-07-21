@@ -38,6 +38,12 @@ class Trovebox(Provider):
         url = photo_object.get_fields()["path%dx%d" % (self.width, self.height)]
         return StringIO(urllib2.urlopen(url).read())
 
+    def get_description(self, photo_object):
+        if photo_object.description:
+            return photo_object.description
+        else:
+            return photo_object.filenameOriginal
+
     def get_tags(self, photo_object):
         return photo_object.tags
 
