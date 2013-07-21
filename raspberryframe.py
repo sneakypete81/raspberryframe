@@ -206,7 +206,7 @@ class Main:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Plays an OpenPhoto slideshow to a framebuffer.")
+    parser = argparse.ArgumentParser(description="Plays a Trovebox slideshow to a framebuffer.")
     parser.add_argument("-t", "--slide_seconds", type=int, default=5,
                         help="Delay between slides in seconds (default:5)")
     parser.add_argument("-s", "--size", default=None,
