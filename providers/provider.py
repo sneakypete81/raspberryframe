@@ -128,6 +128,7 @@ class Provider:
 
         logger.debug("Photo number %d (shuffled index %d)" % (self.current_photo_number, photo_index))
 
+        photo_object = None
         try:
             # Get the (cached) photo object
             if photo_index in self.cached_photo_objects:
@@ -141,4 +142,7 @@ class Provider:
             self.get_photo_cached(photo_object)
 
         except Exception as error:
+            if photo_object:
+                error = "Photo ID '%s': %s" % (self.get_photo_id(photo_object),
+                                               error)
             pygame.event.post(self._create_event("error", error=error))
