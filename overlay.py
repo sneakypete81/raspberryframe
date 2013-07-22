@@ -4,7 +4,14 @@ import sgc
 class LayeredButton(sgc.Button):
     """
     Layered Button widget, to prevent click events from propagating
-    through to the background frame
+    through to the background frame, and to enforce draw order.
+    """
+    _layered = True
+
+class LayeredSimple(sgc.Simple):
+    """
+    Layered Simple widget, to prevent click events from propagating
+    through to the background frame, and to enforce draw order.
     """
     _layered = True
 
@@ -71,6 +78,8 @@ class Overlay:
                         self.star_button, self.remove_button,
                         self.footer]
 
+        self.small_star = LayeredSimple(theme.small_star, pos=theme.small_star_pos)
+
     def add(self, fade=False):
         self._is_active = True
         for widget in self.widgets:
@@ -87,8 +96,10 @@ class Overlay:
     def set_star(self, value=True):
         if value:
             self.star_button._create_base_images(self.theme.starred_button)
+            self.small_star.add(fade=False)
         else:
             self.star_button._create_base_images(self.theme.unstarred_button)
+            self.small_star.remove(fade=False)
         self.star_button._switch()
 
     def set_remove(self, value=True):

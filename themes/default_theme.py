@@ -9,6 +9,10 @@ BUTTON_WIDTH = 128
 BUTTON_OFFSET = 10
 BUTTON_SPACING = 50
 
+SMALL_STAR_OFFSET = 5
+SMALL_STAR_WIDTH = 32
+SMALL_STAR_HEIGHT = 32
+
 class Default(theme.Theme):
     def __init__(self, *args, **kwds):
         theme.Theme.__init__(self, *args, **kwds)
@@ -33,6 +37,10 @@ class Default(theme.Theme):
                                    down="themes/default/star-fill-glow.png")
         self.star_pos = ((self.screen_width - BUTTON_WIDTH*2 - BUTTON_SPACING) / 2,
                          BUTTON_OFFSET)
+
+        self.small_star = "themes/default/star-small.png"
+        self.small_star_pos = (self.screen_width - SMALL_STAR_OFFSET - SMALL_STAR_WIDTH,
+                               SMALL_STAR_OFFSET)
 
         self.unremoved_button = dict(image="themes/default/remove-outline.png",
                                      over="themes/default/remove-outline.png",
