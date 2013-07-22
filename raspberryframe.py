@@ -185,10 +185,7 @@ class Main:
                     self.show_image(event.image)
                     self.photo_object = event.photo_object
                     self.update_overlay()
-
                     logger.debug(self.photo_object)
-                    tags = self.provider.get_tags(self.photo_object)
-                    logger.debug("Tags: %s" % tags)
 
                 elif event.name == "error":
                     logger.error("Could not display photo: %s" % event.error)
